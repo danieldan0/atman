@@ -21,9 +21,10 @@ return function(moonshine)
     extern number phase;
     extern number thickness;
     extern number opacity;
+    extern number frequency;
     extern vec3 color;
     vec4 effect(vec4 c, Image tex, vec2 tc, vec2 _) {
-      number v = .5*(sin(tc.y * 3.14159 / width * love_ScreenSize.y + phase) + 1.);
+      number v = .5*(sin(tc.y * 3.14159 / width * (love_ScreenSize.y/frequency) + phase) + 1.);
       c = Texel(tex,tc);
       //c.rgb = mix(color, c.rgb, mix(1, pow(v, thickness), opacity));
       c.rgb -= (color - c.rgb) * (pow(v,thickness) - 1.0) * opacity;
@@ -37,6 +38,7 @@ return function(moonshine)
     thickness = 1,
     opacity = 1,
     color = {0,0,0},
+    frequency = 1.5,
   }
 
   local setters = {}
@@ -59,6 +61,9 @@ return function(moonshine)
       (tonumber(c[2]) or defaults.color[1]) / 255,
       (tonumber(c[3]) or defaults.color[2]) / 255
     })
+  end
+  setters.frequency = function(v)
+    shader:send("frequency", tonumber(v) or defaults.frequency)
   end
 
   return moonshine.Effect{
