@@ -14,6 +14,19 @@ function love.load()
   frame = love.graphics.newImage("assets/images/screen-frame.png")
   screen = love.graphics.newCanvas(640, 480)
   canvas = love.graphics.newCanvas(656, 496)
+  mouseXY = {0, 0}
+end
+
+function love.update(dt)
+  mouseXY = {love.mouse.getX() / 640, love.mouse.getY() / 496}
+  mouseXY = {mouseXY[1] * 2.0 - 1.0, mouseXY[2] * 2.0 - 1.0}
+  mouseXY = {mouseXY[1] * 1.15, mouseXY[2] * 1.15}
+  mouseXY = {mouseXY[1] + (mouseXY[2] * mouseXY[2] * mouseXY[1] * 0.06),
+             mouseXY[2] + (mouseXY[1] * mouseXY[1] * mouseXY[2] * 0.065)}
+  local mask = (1.0 - smoothstep(0.98,1.0,math.abs(mouseXY[1])))
+             * (1.0 - smoothstep(0.98,1.0,math.abs(mouseXY[2])));
+  mouseXY = {(mouseXY[1] + 1.0) / 2.0, (mouseXY[2] + 1.0) / 2.0}
+  mouseXY = {mouseXY[1] * 640, mouseXY[2] * 496 - 16}
 end
 
 function love.draw()
@@ -30,6 +43,10 @@ function love.draw()
       love.graphics.print({{0, 255, 0, 255}, "Привет, мир!"}, 0, 456)
       love.graphics.print({{0, 255, 0, 255}, "???"}, 0, 240)
       love.graphics.rectangle("fill", 540, 380, 100, 100)
+      love.graphics.setColor({255, 0, 0, 255})
+      love.graphics.rectangle("fill", mouseXY[1] - 5, mouseXY[2] - 5, 10, 10)
+      love.graphics.setColor({0, 0, 255, 255})
+      love.graphics.rectangle("fill", love.mouse.getX() - 5, love.mouse.getY() - 5, 10, 10)
     end)
   love.graphics.setCanvas(canvas)
     s_crt(function()
@@ -48,4 +65,9 @@ function readAll(file)
   local content = f:read("*all")
   f:close()
   return content
+end
+
+function smoothstep(a, b, t)
+  t = t * t * t * (t * (t * 6 - 15) + 10)
+  return a + (b - a) * t
 end
