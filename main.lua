@@ -15,7 +15,6 @@ function love.load()
   font = love.graphics.newFont("assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf", 24)
   frame = love.graphics.newImage("assets/images/screen-frame.png")
   mouseXY = {0, 0}
-  charXY = {0, 0}
 end
 
 function love.update(dt)
@@ -56,14 +55,8 @@ function love.draw()
     -- love.graphics.rectangle("fill", love.mouse.getX() - 5, love.mouse.getY() - 5, 10, 10)
     -- test
     love.graphics.setColor({255, 0, 0, 255})
-    for x = 0, 27 do
-      for y = 0, 21 do
-        if inArea(mouseXY[1], mouseXY[2], x * 24, y * 24, 24, 24) then
-          love.graphics.rectangle("fill", x*24, y*24-9, 24, 28)
-          charXY = {x, y}
-        end
-      end
-    end
+    local gx, gy = math.floor(mouseXY[1] / 24) * 24, math.floor(mouseXY[2] / 24) * 24
+    love.graphics.rectangle('fill', gx, gy, 24, 24)
     if love.keyboard.isDown("z") then
         print(charXY[1]..";"..charXY[2])
     end
