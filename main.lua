@@ -15,6 +15,7 @@ function love.load()
   font = love.graphics.newFont("assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf", 24)
   frame = love.graphics.newImage("assets/images/screen-frame.png")
   mouseXY = {0, 0}
+  charXY = {0, 0}
 end
 
 function love.update(dt)
@@ -49,10 +50,23 @@ function love.draw()
       love.graphics.rectangle("fill", 320+50, 240+50, 100, 100, 10)
     end
     -- cursors
+    -- love.graphics.setColor({255, 0, 0, 255})
+    -- love.graphics.rectangle("fill", mouseXY[1] - 5, mouseXY[2] - 5, 10, 10)
+    -- love.graphics.setColor({0, 0, 255, 255})
+    -- love.graphics.rectangle("fill", love.mouse.getX() - 5, love.mouse.getY() - 5, 10, 10)
+    -- test
     love.graphics.setColor({255, 0, 0, 255})
-    love.graphics.rectangle("fill", mouseXY[1] - 5, mouseXY[2] - 5, 10, 10)
-    love.graphics.setColor({0, 0, 255, 255})
-    love.graphics.rectangle("fill", love.mouse.getX() - 5, love.mouse.getY() - 5, 10, 10)
+    for x = 0, 27 do
+      for y = 0, 21 do
+        if inArea(mouseXY[1], mouseXY[2], x * 24, y * 24, 24, 24) then
+          love.graphics.rectangle("fill", x*24, y*24-9, 24, 28)
+          charXY = {x, y}
+        end
+      end
+    end
+    if love.keyboard.isDown("z") then
+        print(charXY[1]..";"..charXY[2])
+    end
   end)
 
   love.graphics.draw(frame, 0, 0)
@@ -66,7 +80,7 @@ function readAll(file)
 end
 
 function inArea(x, y, area_x, area_y, area_w, area_h)
-  return x >= area_x and x <= area_x + area_w and y >= area_y and y <= area_y + area_h
+  return (((x >= area_x) and (x <= area_x + area_w)) and ((y >= area_y) and (y <= area_y + area_h)))
 end
 
 function fisheye(vec, w, h, scale, distortX, distortY)
