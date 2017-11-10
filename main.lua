@@ -95,12 +95,14 @@ function love.draw()
     love.graphics.setColor({255, 0, 0, 255})
     love.graphics.rectangle("fill", mouseXY[1] - 5, mouseXY[2] - 5, 10, 10)
     -- test
-    -- love.graphics.setColor({255, 0, 0, 255})
-    -- local gx, gy = math.floor(mouseXY[1] / 24) * 24, math.floor(mouseXY[2] / 24) * 24
-    -- love.graphics.rectangle('fill', gx, gy, 24, 24)
-    -- if love.keyboard.isDown("z") then
-    --     print(gx..";"..gy)
-    -- end
+    love.graphics.setColor({255, 0, 0, 255})
+    local gx, gy = math.floor(mouseXY[1] / 24) * 24, math.floor(mouseXY[2] / 24) * 24
+    love.graphics.rectangle('fill', gx, gy, 24, 24)
+    if love.keyboard.isDown("z") then
+        print(gx..";"..gy)
+    end
+    -- set font size to 480
+    -- love.graphics.printf({{0, 255, 0, 255}, "@"}, 320-240+25, 288-240+100, 500, "center")
   end)
 
   love.graphics.draw(frame, 0, 0)
