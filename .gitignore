@@ -26,16 +26,17 @@ luac.out
 *.exp
 
 # Shared objects (inc. Windows DLLs)
-*.dll
+# *.dll
 *.so
 *.so.*
 *.dylib
 
 # Executables
-*.exe
+# *.exe
 *.out
 *.app
 *.i*86
 *.x86_64
 *.hex
 
+# Commented *.exe and *.dll to make build scripts work for everyone.
