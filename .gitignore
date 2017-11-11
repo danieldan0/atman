@@ -39,4 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+# Builds
+builds/
+
 # Commented *.exe and *.dll to make build scripts work for everyone.
