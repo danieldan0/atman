@@ -1,5 +1,7 @@
 render_utils = {}
 
+colors_table = {}
+
 function render_utils.draw_char(char, x, y, color, bg)
   love.graphics.setColor(bg)
   love.graphics.rectangle('fill', x * 24, y * 24, 24, 24)
@@ -12,7 +14,19 @@ function render_utils.draw_char(char, x, y, color, bg)
   love.graphics.print({color, char}, x * 24, y * 24 + 8)
 end
 
-function render_utils.render_all(entities)
+function render_utils.draw_tile(v, x, y)
+  local wall = not v.transparent
+  if wall then
+    render_utils.draw_char(x, y, '', {0, 0, 0, 0}, colors.dark_wall)
+  else
+    render_utils.draw_char(x, y, '', {0, 0, 0, 0}, colors.dark_ground)
+  end
+  return v
+end
+
+function render_utils.render_all(entities, map, colors)
+  colors_table = colors
+  map:foreach_xy(render_utils.draw_tile)
   for id, entity in pairs(entities) do
     render_utils.draw_char(entity.char, entity.x, entity.y, entity.color, {0, 0, 0, 0})
   end

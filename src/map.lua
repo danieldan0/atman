@@ -14,7 +14,7 @@ function Map:initialize(width, height)
   self.width = width
   self.height = height
   self.data = {}
-  for i = 0, width * height - 1 do
+  for i = 0, self.width * self.height - 1 do
     self.data[i] = Tile()
   end
 end
@@ -48,7 +48,7 @@ end
 -- @param x an integer
 -- @param y an integer
 -- @param v any value
-function Map:set(v, x, y)
+function Map:set_tile(v, x, y)
   assert(inBounds(x, y), "Trying to set tile out of the map bounds.")
   self.data[self.to_index(x, y)] = v
 end
@@ -56,7 +56,7 @@ end
 --- Sets all values in the map to the new value.
 -- @param v any value
 function Map:set_all(v)
-  for i = 0, width * height - 1 do
+  for i = 0, self.width * self.height - 1 do
     self.data[i] = v
   end
 end
@@ -72,14 +72,14 @@ end
 -- @param x an integer or a string in X;Y format
 -- @param y an integer
 -- @return any value, nil if doesn't exist
-function Map:get(x, y)
+function Map:get_tile(x, y)
   if type(x) == "string" then
     return self:get_str(x)
   end
   return self.data[to_index(x, y)]
 end
 
---- Iterate over map region.
+-- - Iterate over map region.
 -- @param x an integer
 -- @param y an integer
 -- @param w an integer(width)
@@ -88,7 +88,7 @@ end
 function Map:iter(x, y, w, h, func)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      self.set(row, column, func(self.get(row, column)))
+      self:set_tile(row, column, func(self.get_tile(row, column)))
     end
   end
 end
@@ -102,13 +102,13 @@ end
 function Map:iter_xy(x, y, w, h, func)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      self.set(row, column, func(self.get(row, column), row, column))
+      self:set_tile(row, column, func(self:get_tile(row, column), row, column))
     end
   end
 end
 
---- Iterate over all map.
--- @param func a function which will get values and which will return new values
+-- --- Iterate over all map.
+-- -- @param func a function which will get values and which will return new values
 function Map:foreach(func)
   self:iter(0, 0, self.width, self.height, func)
 end
@@ -130,7 +130,7 @@ function Map:submap(x, y, w, h)
   local data = {}
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      data:insert(self.get(row, column))
+      data:insert(self:get_tile(row, column))
     end
   end
   map.data = data
@@ -147,7 +147,7 @@ end
 function Map:find_region(x, y, w, h, v)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      if self.get(row, column) == v then
+      if self:get_tile(row, column) == v then
         return {row, column}
       end
     end
@@ -168,7 +168,7 @@ function Map:find_region_rand(x, y, w, h, v, attempts)
   for i = 1, attempts do
     local x = math.random(x, w - 1)
     local y = math.random(y, h - 1)
-    if self.get(x, y) == v then
+    if self:get_tile(x, y) == v then
       return {x, y}
     end
   end
@@ -199,7 +199,7 @@ function Map:check(x, y, w, h, func)
   local results = {}
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      if func(self.get(row, column)) then
+      if func(self:get_tile(row, column)) then
         results[x.tostring() .. ";" .. y.tostring()] = true
       end
     end
@@ -218,7 +218,7 @@ function Map:check_xy(x, y, w, h, func)
   local results = {}
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      if func(self.get(row, column), row, column) then
+      if func(self:get_tile(row, column), row, column) then
         results[x.tostring() .. ";" .. y.tostring()] = true
       end
     end

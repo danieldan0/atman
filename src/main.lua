@@ -4,6 +4,8 @@ local handle_input = require 'input_handlers'
 local render_utils = require 'render_utils'
 local Entity = require 'entity'
 local Map = require 'map'
+local map_utils = require 'map_utils'
+local colors = require 'colors'
 
 screen_width = 26
 screen_height = 20
@@ -39,7 +41,7 @@ function love.load()
   -- Initialiazing game state.
   game = {
     entities = entities,
-    map = Map(map_width, map_height),
+    map = map_utils.make_map(map_width, map_height),
     user_input = {
       keys = {},
       mouseXY = {0, 0},
@@ -97,7 +99,7 @@ function love.draw()
   end)
 
   s_screen(function()
-    render_utils.render_all(game.entities)
+    render_utils.render_all(game.entities, game.map, colors)
     -- cursors
     love.graphics.setColor({255, 0, 0, 255})
     love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
