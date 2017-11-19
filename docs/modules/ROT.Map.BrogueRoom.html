@@ -1,0 +1,445 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>atman documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>atman</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/ROT.Color.html">ROT.Color</a></li>
+  <li><a href="../modules/ROT.Dice.html">ROT.Dice</a></li>
+  <li><a href="../modules/ROT.Display.html">ROT.Display</a></li>
+  <li><a href="../modules/ROT.EventQueue.html">ROT.EventQueue</a></li>
+  <li><a href="../modules/ROT.FOV.Bresenham.html">ROT.FOV.Bresenham</a></li>
+  <li><a href="../modules/ROT.FOV.Precise.html">ROT.FOV.Precise</a></li>
+  <li><a href="../modules/ROT.FOV.Recursive.html">ROT.FOV.Recursive</a></li>
+  <li><a href="../modules/ROT.Lighting.html">ROT.Lighting</a></li>
+  <li><a href="../modules/ROT.Map.Arena.html">ROT.Map.Arena</a></li>
+  <li><a href="../modules/ROT.Map.Brogue.html">ROT.Map.Brogue</a></li>
+  <li><strong>ROT.Map.BrogueRoom</strong></li>
+  <li><a href="../modules/ROT.Map.Cellular.html">ROT.Map.Cellular</a></li>
+  <li><a href="../modules/ROT.Map.Corridor.html">ROT.Map.Corridor</a></li>
+  <li><a href="../modules/ROT.Map.Digger.html">ROT.Map.Digger</a></li>
+  <li><a href="../modules/ROT.Map.DividedMaze.html">ROT.Map.DividedMaze</a></li>
+  <li><a href="../modules/ROT.Map.Dungeon.html">ROT.Map.Dungeon</a></li>
+  <li><a href="../modules/ROT.Map.EllerMaze.html">ROT.Map.EllerMaze</a></li>
+  <li><a href="../modules/ROT.Map.IceyMaze.html">ROT.Map.IceyMaze</a></li>
+  <li><a href="../modules/ROT.Map.Rogue.html">ROT.Map.Rogue</a></li>
+  <li><a href="../modules/ROT.Map.Room.html">ROT.Map.Room</a></li>
+  <li><a href="../modules/ROT.Map.Uniform.html">ROT.Map.Uniform</a></li>
+  <li><a href="../modules/ROT.Noise.Simplex.html">ROT.Noise.Simplex</a></li>
+  <li><a href="../modules/ROT.Path.AStar.html">ROT.Path.AStar</a></li>
+  <li><a href="../modules/ROT.Path.Dijkstra.html">ROT.Path.Dijkstra</a></li>
+  <li><a href="../modules/ROT.DijkstraMap.html">ROT.DijkstraMap</a></li>
+  <li><a href="../modules/ROT.RNG.html">ROT.RNG</a></li>
+  <li><a href="../modules/ROT.Scheduler.html">ROT.Scheduler</a></li>
+  <li><a href="../modules/ROT.Scheduler.Action.html">ROT.Scheduler.Action</a></li>
+  <li><a href="../modules/ROT.Scheduler.Simple.html">ROT.Scheduler.Simple</a></li>
+  <li><a href="../modules/ROT.Scheduler.Speed.html">ROT.Scheduler.Speed</a></li>
+  <li><a href="../modules/ROT.StringGenerator.html">ROT.StringGenerator</a></li>
+  <li><a href="../modules/ROT.Text.html">ROT.Text</a></li>
+  <li><a href="../modules/ROT.TextDisplay.html">ROT.TextDisplay</a></li>
+  <li><a href="../modules/ROT.Type.Grid.html">ROT.Type.Grid</a></li>
+  <li><a href="../modules/ROT.Type.PointSet.html">ROT.Type.PointSet</a></li>
+  <li><a href="../modules/map.html">map</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>ROT.Map.BrogueRoom</code></h1>
+<p>BrogueRoom object.</p>
+<p>
+ Used by ROT.Map.Brogue to create maps with 'cross rooms'</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#init">init (dims[, doorX[, doorY]])</a></td>
+	<td class="summary">Constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#createEntranceRoom">createEntranceRoom (availWidth, availHeight[, rng])</a></td>
+	<td class="summary">Create room at bottom center with dims 9x10 and 20x4</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#createRandomAt">createRandomAt (x, y, dx, dy, options, rng)</a></td>
+	<td class="summary">Create Random with position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#createRandomCenter">createRandomCenter (cx, cy, options, rng)</a></td>
+	<td class="summary">Create Random with center position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#createRandom">createRandom (availWidth, availHeight, options, rng)</a></td>
+	<td class="summary">Create random with no position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isValid">isValid (isWallCallback, canBeDugCallback)</a></td>
+	<td class="summary">Use two callbacks to confirm room validity.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#create">create (digCallback)</a></td>
+	<td class="summary">Create.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#min">min</a></td>
+	<td class="summary">Generate Rectangle Two dimensions</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#min">min</a></td>
+	<td class="summary">Generate Rectangle Two dimensions</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "init"></a>
+    <strong>init (dims[, doorX[, doorY]])</strong>
+    </dt>
+    <dd>
+    Constructor.
+ creates a new BrogueRoom object with the assigned values
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dims</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         Represents dimensions and positions of the rooms two rectangles
+        </li>
+        <li><span class="parameter">doorX</span>
+            <span class="types"><span class="type">int</span></span>
+         x-position of door
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">doorY</span>
+            <span class="types"><span class="type">int</span></span>
+         y-position of door
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "createEntranceRoom"></a>
+    <strong>createEntranceRoom (availWidth, availHeight[, rng])</strong>
+    </dt>
+    <dd>
+    Create room at bottom center with dims 9x10 and 20x4
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">availWidth</span>
+            <span class="types"><span class="type">int</span></span>
+         Typically the width of the map.
+        </li>
+        <li><span class="parameter">availHeight</span>
+            <span class="types"><span class="type">int</span></span>
+         Typically the height of the map
+        </li>
+        <li><span class="parameter">rng</span>
+            <span class="types"><span class="type">userData</span></span>
+         A user defined object with a .random(self, min, max) method
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "createRandomAt"></a>
+    <strong>createRandomAt (x, y, dx, dy, options, rng)</strong>
+    </dt>
+    <dd>
+    Create Random with position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">int</span></span>
+         x-position of room
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">int</span></span>
+         y-position of room
+        </li>
+        <li><span class="parameter">dx</span>
+            <span class="types"><span class="type">int</span></span>
+         x-direction in which to build room 1==right -1==left
+        </li>
+        <li><span class="parameter">dy</span>
+            <span class="types"><span class="type">int</span></span>
+         y-direction in which to build room 1==down  -1==up
+        </li>
+        <li><span class="parameter">options</span> Options
+        <ul>
+        <li><span class="parameter">roomWidth</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum width for room {min,max}
+        </li>
+        <li><span class="parameter">roomHeight</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum height for room {min,max}
+        </li>
+        </li></ul>
+        <li><span class="parameter">rng</span>
+            <span class="types"><span class="type">userData</span></span>
+         A user defined object with a .random(self, min, max) method
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "createRandomCenter"></a>
+    <strong>createRandomCenter (cx, cy, options, rng)</strong>
+    </dt>
+    <dd>
+    Create Random with center position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cx</span>
+            <span class="types"><span class="type">int</span></span>
+         x-position of room's center
+        </li>
+        <li><span class="parameter">cy</span>
+            <span class="types"><span class="type">int</span></span>
+         y-position of room's center
+        </li>
+        <li><span class="parameter">options</span> Options
+        <ul>
+        <li><span class="parameter">roomWidth</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum width for room {min,max}
+        </li>
+        <li><span class="parameter">roomHeight</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum height for room {min,max}
+        </li>
+        <li><span class="parameter">crossWidth</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum width for rectangleTwo {min,max}
+        </li>
+        <li><span class="parameter">crossHeight</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum height for rectangleTwo {min,max}
+        </li>
+        </li></ul>
+        <li><span class="parameter">rng</span>
+            <span class="types"><span class="type">userData</span></span>
+         A user defined object with a .random(min, max) method
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "createRandom"></a>
+    <strong>createRandom (availWidth, availHeight, options, rng)</strong>
+    </dt>
+    <dd>
+    Create random with no position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">availWidth</span>
+            <span class="types"><span class="type">int</span></span>
+         Typically the width of the map.
+        </li>
+        <li><span class="parameter">availHeight</span>
+            <span class="types"><span class="type">int</span></span>
+         Typically the height of the map
+        </li>
+        <li><span class="parameter">options</span> Options
+        <ul>
+        <li><span class="parameter">roomWidth</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum width for rectangleOne {min,max}
+        </li>
+        <li><span class="parameter">roomHeight</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum height for rectangleOne {min,max}
+        </li>
+        <li><span class="parameter">crossWidth</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum width for rectangleTwo {min,max}
+        </li>
+        <li><span class="parameter">crossHeight</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         minimum/maximum height for rectangleTwo {min,max}
+        </li>
+        </li></ul>
+        <li><span class="parameter">rng</span>
+            <span class="types"><span class="type">userData</span></span>
+         A user defined object with a .random(min, max) method
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isValid"></a>
+    <strong>isValid (isWallCallback, canBeDugCallback)</strong>
+    </dt>
+    <dd>
+    Use two callbacks to confirm room validity.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">isWallCallback</span>
+            <span class="types"><span class="type">function</span></span>
+         A function with two parameters (x, y) that will return true if x, y represents a wall space in a map.
+        </li>
+        <li><span class="parameter">canBeDugCallback</span>
+            <span class="types"><span class="type">function</span></span>
+         A function with two parameters (x, y) that will return true if x, y represents a map cell that can be made into floorspace.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if room is valid.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "create"></a>
+    <strong>create (digCallback)</strong>
+    </dt>
+    <dd>
+    Create.
+ Function runs a callback to dig the room into a map
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">digCallback</span>
+            <span class="types"><span class="type">function</span></span>
+         The function responsible for digging the room into a map.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "min"></a>
+    <strong>min</strong>
+    </dt>
+    <dd>
+    Generate Rectangle Two dimensions
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "min"></a>
+    <strong>min</strong>
+    </dt>
+    <dd>
+    Generate Rectangle Two dimensions
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-11-19 15:54:02 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>atman documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>atman</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/ROT.Color.html">ROT.Color</a></li>
+  <li><a href="../modules/ROT.Dice.html">ROT.Dice</a></li>
+  <li><a href="../modules/ROT.Display.html">ROT.Display</a></li>
+  <li><a href="../modules/ROT.EventQueue.html">ROT.EventQueue</a></li>
+  <li><a href="../modules/ROT.FOV.Bresenham.html">ROT.FOV.Bresenham</a></li>
+  <li><a href="../modules/ROT.FOV.Precise.html">ROT.FOV.Precise</a></li>
+  <li><a href="../modules/ROT.FOV.Recursive.html">ROT.FOV.Recursive</a></li>
+  <li><a href="../modules/ROT.Lighting.html">ROT.Lighting</a></li>
+  <li><a href="../modules/ROT.Map.Arena.html">ROT.Map.Arena</a></li>
+  <li><a href="../modules/ROT.Map.Brogue.html">ROT.Map.Brogue</a></li>
+  <li><a href="../modules/ROT.Map.BrogueRoom.html">ROT.Map.BrogueRoom</a></li>
+  <li><a href="../modules/ROT.Map.Cellular.html">ROT.Map.Cellular</a></li>
+  <li><a href="../modules/ROT.Map.Corridor.html">ROT.Map.Corridor</a></li>
+  <li><a href="../modules/ROT.Map.Digger.html">ROT.Map.Digger</a></li>
+  <li><a href="../modules/ROT.Map.DividedMaze.html">ROT.Map.DividedMaze</a></li>
+  <li><a href="../modules/ROT.Map.Dungeon.html">ROT.Map.Dungeon</a></li>
+  <li><a href="../modules/ROT.Map.EllerMaze.html">ROT.Map.EllerMaze</a></li>
+  <li><a href="../modules/ROT.Map.IceyMaze.html">ROT.Map.IceyMaze</a></li>
+  <li><a href="../modules/ROT.Map.Rogue.html">ROT.Map.Rogue</a></li>
+  <li><a href="../modules/ROT.Map.Room.html">ROT.Map.Room</a></li>
+  <li><a href="../modules/ROT.Map.Uniform.html">ROT.Map.Uniform</a></li>
+  <li><a href="../modules/ROT.Noise.Simplex.html">ROT.Noise.Simplex</a></li>
+  <li><a href="../modules/ROT.Path.AStar.html">ROT.Path.AStar</a></li>
+  <li><a href="../modules/ROT.Path.Dijkstra.html">ROT.Path.Dijkstra</a></li>
+  <li><a href="../modules/ROT.DijkstraMap.html">ROT.DijkstraMap</a></li>
+  <li><a href="../modules/ROT.RNG.html">ROT.RNG</a></li>
+  <li><a href="../modules/ROT.Scheduler.html">ROT.Scheduler</a></li>
+  <li><a href="../modules/ROT.Scheduler.Action.html">ROT.Scheduler.Action</a></li>
+  <li><a href="../modules/ROT.Scheduler.Simple.html">ROT.Scheduler.Simple</a></li>
+  <li><a href="../modules/ROT.Scheduler.Speed.html">ROT.Scheduler.Speed</a></li>
+  <li><a href="../modules/ROT.StringGenerator.html">ROT.StringGenerator</a></li>
+  <li><a href="../modules/ROT.Text.html">ROT.Text</a></li>
+  <li><a href="../modules/ROT.TextDisplay.html">ROT.TextDisplay</a></li>
+  <li><a href="../modules/ROT.Type.Grid.html">ROT.Type.Grid</a></li>
+  <li><a href="../modules/ROT.Type.PointSet.html">ROT.Type.PointSet</a></li>
+  <li><strong>map</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>map</code></h1>
+<p>The map module
+ Has a Map class, which is used to hold a 2D grid of elements.</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Map:initialize">Map:initialize (width, height)</a></td>
+	<td class="summary">Initializes a Map instance filled with solid Tiles.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:to_index">Map:to_index (x, y)</a></td>
+	<td class="summary">Converts position(x, y) to index in map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:to_index_str">Map:to_index_str (xy)</a></td>
+	<td class="summary">Converts position in string format("X;Y") to index in map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:in_bounds">Map:in_bounds (x, y)</a></td>
+	<td class="summary">Checks if position is in bounds of a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:set">Map:set (x, y, v)</a></td>
+	<td class="summary">Sets a value in position(x, y) to the new value
+ Errors if a position is outside of map's bounds.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:set_all">Map:set_all (v)</a></td>
+	<td class="summary">Sets all values in the map to the new value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:get_str">Map:get_str (xy)</a></td>
+	<td class="summary">Gets a value on the position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:get">Map:get (x, y)</a></td>
+	<td class="summary">Gets a value on the position.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:iter">Map:iter (x, y, w, h, func)</a></td>
+	<td class="summary">Iterate over map region.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:iter_xy">Map:iter_xy (x, y, w, h, func)</a></td>
+	<td class="summary">Iterate over map region.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:foreach">Map:foreach (func)</a></td>
+	<td class="summary">Iterate over all map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:foreach_xy">Map:foreach_xy (func)</a></td>
+	<td class="summary">Iterate over all map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:submap">Map:submap (x, y, w, h)</a></td>
+	<td class="summary">Gets a piece of a map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:find_region">Map:find_region (x, y, w, h, v)</a></td>
+	<td class="summary">Finds a value in region.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:find_region_rand">Map:find_region_rand (x, y, w, h, v, attempts)</a></td>
+	<td class="summary">Finds a value in region, randomly.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:find">Map:find (v)</a></td>
+	<td class="summary">Finds a value in the map.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:find_rand">Map:find_rand (v)</a></td>
+	<td class="summary">Finds a value in the map, randomly.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:check">Map:check (x, y, w, h, func)</a></td>
+	<td class="summary">Checks values in the region using a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:check_xy">Map:check_xy (x, y, w, h, func)</a></td>
+	<td class="summary">Checks values in the region using a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:check_all">Map:check_all (func)</a></td>
+	<td class="summary">Checks values in the map using a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:check_xy_all">Map:check_xy_all (func)</a></td>
+	<td class="summary">Checks values in the map using a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map:clone">Map:clone ()</a></td>
+	<td class="summary">Makes an exact copy of the map.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Map:initialize"></a>
+    <strong>Map:initialize (width, height)</strong>
+    </dt>
+    <dd>
+    Initializes a Map instance filled with solid Tiles.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">width</span>
+         a positive integer
+        </li>
+        <li><span class="parameter">height</span>
+         a positive integer
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:to_index"></a>
+    <strong>Map:to_index (x, y)</strong>
+    </dt>
+    <dd>
+    Converts position(x, y) to index in map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a positive integer
+        </li>
+        <li><span class="parameter">y</span>
+         a positive integer
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an index for this map
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:to_index_str"></a>
+    <strong>Map:to_index_str (xy)</strong>
+    </dt>
+    <dd>
+    Converts position in string format("X;Y") to index in map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">xy</span>
+         a string in X;Y format
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an index for this map
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:in_bounds"></a>
+    <strong>Map:in_bounds (x, y)</strong>
+    </dt>
+    <dd>
+    Checks if position is in bounds of a map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a bool
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:set"></a>
+    <strong>Map:set (x, y, v)</strong>
+    </dt>
+    <dd>
+    Sets a value in position(x, y) to the new value
+ Errors if a position is outside of map's bounds.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">v</span>
+         any value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:set_all"></a>
+    <strong>Map:set_all (v)</strong>
+    </dt>
+    <dd>
+    Sets all values in the map to the new value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+         any value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:get_str"></a>
+    <strong>Map:get_str (xy)</strong>
+    </dt>
+    <dd>
+    Gets a value on the position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">xy</span>
+         a string in X;Y format
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        any value, nil if doesn't exist
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:get"></a>
+    <strong>Map:get (x, y)</strong>
+    </dt>
+    <dd>
+    Gets a value on the position.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer or a string in X;Y format
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        any value, nil if doesn't exist
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:iter"></a>
+    <strong>Map:iter (x, y, w, h, func)</strong>
+    </dt>
+    <dd>
+    Iterate over map region.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+        <li><span class="parameter">func</span>
+         a function which will get values and which will return new values
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:iter_xy"></a>
+    <strong>Map:iter_xy (x, y, w, h, func)</strong>
+    </dt>
+    <dd>
+    Iterate over map region.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+        <li><span class="parameter">func</span>
+         a function which will get values and positions and which will return new values
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:foreach"></a>
+    <strong>Map:foreach (func)</strong>
+    </dt>
+    <dd>
+    Iterate over all map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         a function which will get values and which will return new values
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:foreach_xy"></a>
+    <strong>Map:foreach_xy (func)</strong>
+    </dt>
+    <dd>
+    Iterate over all map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         a function which will get values and positions and which will return new values
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:submap"></a>
+    <strong>Map:submap (x, y, w, h)</strong>
+    </dt>
+    <dd>
+    Gets a piece of a map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Map
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:find_region"></a>
+    <strong>Map:find_region (x, y, w, h, v)</strong>
+    </dt>
+    <dd>
+    Finds a value in region.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+        <li><span class="parameter">v</span>
+         any value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a position{x, y} or nil if there is no that value in the region
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:find_region_rand"></a>
+    <strong>Map:find_region_rand (x, y, w, h, v, attempts)</strong>
+    </dt>
+    <dd>
+    Finds a value in region, randomly.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+        <li><span class="parameter">v</span>
+         any value
+        </li>
+        <li><span class="parameter">attempts</span>
+         number of attemptsof finding
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a position{x, y} or nil if there is no that value in the region
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:find"></a>
+    <strong>Map:find (v)</strong>
+    </dt>
+    <dd>
+    Finds a value in the map.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+         any value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a position{x, y} or nil if there is no that value in the map
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:find_rand"></a>
+    <strong>Map:find_rand (v)</strong>
+    </dt>
+    <dd>
+    Finds a value in the map, randomly.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+         any value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a position{x, y} or nil if there is no that value in the map
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:check"></a>
+    <strong>Map:check (x, y, w, h, func)</strong>
+    </dt>
+    <dd>
+    Checks values in the region using a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+        <li><span class="parameter">func</span>
+         a function which will get values and which will return a bool
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a set of positions in the "X;Y" format
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:check_xy"></a>
+    <strong>Map:check_xy (x, y, w, h, func)</strong>
+    </dt>
+    <dd>
+    Checks values in the region using a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         an integer
+        </li>
+        <li><span class="parameter">y</span>
+         an integer
+        </li>
+        <li><span class="parameter">w</span>
+         an integer(width)
+        </li>
+        <li><span class="parameter">h</span>
+         an integer(height)
+        </li>
+        <li><span class="parameter">func</span>
+         a function which will get values and positions and which will return a bool
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a set of positions in the "X;Y" format
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:check_all"></a>
+    <strong>Map:check_all (func)</strong>
+    </dt>
+    <dd>
+    Checks values in the map using a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         a function which will get values and which will return a bool
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a set of positions in the "X;Y" format
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:check_xy_all"></a>
+    <strong>Map:check_xy_all (func)</strong>
+    </dt>
+    <dd>
+    Checks values in the map using a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         a function which will get values and positions and which will return a bool
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a set of positions in the "X;Y" format
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map:clone"></a>
+    <strong>Map:clone ()</strong>
+    </dt>
+    <dd>
+    Makes an exact copy of the map.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Map
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-11-19 15:54:02 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

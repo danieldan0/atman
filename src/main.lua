@@ -1,6 +1,14 @@
 local moonshine = require 'lib/moonshine'
 local utils = require 'utils'
 local handle_input = require 'input_handlers'
+local render_utils = require 'render_utils'
+local Entity = require 'entity'
+
+screen_width = 26
+screen_height = 20
+map_width = 26
+map_height = 15
+PLAYER = 1
 
 function love.load()
   -- Loading shaders
@@ -9,8 +17,8 @@ function love.load()
   s_scanlines.scanlines.thickness = 0.5
   s_scanlines.crt.scaleFactor = {1.15, 1.15}
 
-  s_screen = moonshine(moonshine.effects.glow)
-  .chain(moonshine.effects.scanlines)
+  s_screen = moonshine(moonshine.effects.scanlines)
+  .chain(moonshine.effects.glow)
   .chain(moonshine.effects.crt)
   s_screen.scanlines.thickness = 0.5
   s_screen.crt.scaleFactor = {1.15, 1.15}
@@ -22,9 +30,14 @@ function love.load()
   -- Loading images
   frame = love.graphics.newImage("assets/images/screen-frame.png")
 
+  -- Initializing entities
+  local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255})
+  local npc = Entity(math.floor(screen_width / 2 - 5), math.floor(screen_height / 2), "@", {255, 255, 0, 255})
+  local entities = {player, npc}
+
   -- Initialiazing game state.
   game = {
-    playerXY = {0, 0},
+    entities = entities,
     user_input = {
       keys = {},
       mouseXY = {0, 0},
@@ -32,28 +45,29 @@ function love.load()
       pressed_key = false
     }
   }
-  action = {}
 end
 
 function love.update(dt)
   if game.user_input.pressed_key then
-    action = handle_input(game.user_input)
-    move = action['move']
-    exit = action['exit']
-    fullscreen = action['fullscreen']
+    local action = handle_input(game.user_input)
+    local move = action['move']
+    local exit = action['exit']
+    local fullscreen = action['fullscreen']
 
     if move then
-      dx, dy = unpack(move)
-      game.playerXY = {game.playerXY[1] + dx, game.playerXY[2] + dy}
+      local dx, dy = unpack(move)
+      game.entities[PLAYER]:move(dx, dy)
     end
 
     if exit then
       love.event.quit()
     end
 
-    if fullscreen then
-      love.window.setFullscreen(not love.window.getFullscreen(), "exclusive")
-    end
+    -- fullscreen is ugly
+
+    -- if fullscreen then
+    --   love.window.setFullscreen(not love.window.getFullscreen(), "exclusive")
+    -- end
 
     game.user_input.pressed_key = false
   end
@@ -81,26 +95,11 @@ function love.draw()
   end)
 
   s_screen(function()
-    drawChar("@", game.playerXY[1], game.playerXY[2], {255, 0, 0, 255}, {0, 255, 0, 255})
-    if game.user_input.tileXY[1] == game.playerXY[1] and game.user_input.tileXY[2] == game.playerXY[2] then
-      drawChar("@", game.playerXY[1], game.playerXY[2], {255, 127, 127, 255}, {127, 255, 127, 255})
-    end
+    render_utils.render_all(game.entities)
     -- cursors
     love.graphics.setColor({255, 0, 0, 255})
     love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
   end)
 
   love.graphics.draw(frame, 0, 0)
-end
-
-function drawChar(char, x, y, color, bg)
-  love.graphics.setColor(bg)
-  love.graphics.rectangle('fill', x * 24, y * 24, 24, 24)
-  love.graphics.setColor(0, 0, 0, 255)
-  love.graphics.print(char, x * 24 - 1, y * 24 + 7)
-  love.graphics.print(char, x * 24 - 1, y * 24 + 9)
-  love.graphics.print(char, x * 24 + 1, y * 24 + 7)
-  love.graphics.print(char, x * 24 + 1, y * 24 + 9)
-  love.graphics.setColor(255, 255, 255, 255)
-  love.graphics.print({color, char}, x * 24, y * 24 + 8)
 end
