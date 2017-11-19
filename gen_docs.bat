@@ -1,3 +1,3 @@
 cd src
-ldoc .
+ldoc -c "..\config.ld" .
 cd ..
