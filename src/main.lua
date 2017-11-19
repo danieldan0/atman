@@ -3,6 +3,7 @@ local utils = require 'utils'
 local handle_input = require 'input_handlers'
 local render_utils = require 'render_utils'
 local Entity = require 'entity'
+local Map = require 'map'
 
 screen_width = 26
 screen_height = 20
@@ -38,6 +39,7 @@ function love.load()
   -- Initialiazing game state.
   game = {
     entities = entities,
+    map = Map(map_width, map_height),
     user_input = {
       keys = {},
       mouseXY = {0, 0},

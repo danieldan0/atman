@@ -1,15 +1,15 @@
-local class = require "middleclass"
+local class = require "lib/middleclass"
 
 Tile = class("Tile")
 
 function Tile:initialize(walkable, transparent)
-  if walkable != nil then
+  if walkable ~= nil then
     self.walkable = walkable
   else
     self.walkable = false
   end
 
-  if transparent != nil then
+  if transparent ~= nil then
     self.transparent = transparent
   else
     self.transparent = self.walkable

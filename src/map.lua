@@ -2,7 +2,7 @@
 -- Has a Map class, which is used to hold a 2D grid of elements.
 -- @module map
 
-local class = require 'middleclass'
+local class = require 'lib/middleclass'
 local Tile = require 'tile'
 
 Map = class("Map")
@@ -200,7 +200,7 @@ function Map:check(x, y, w, h, func)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
       if func(self.get(row, column)) then
-        results[x.tostring() .. ";" .. y.tostring())] = true
+        results[x.tostring() .. ";" .. y.tostring()] = true
       end
     end
   end
@@ -219,7 +219,7 @@ function Map:check_xy(x, y, w, h, func)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
       if func(self.get(row, column), row, column) then
-        results[x.tostring() .. ";" .. y.tostring())] = true
+        results[x.tostring() .. ";" .. y.tostring()] = true
       end
     end
   end
