@@ -38,10 +38,13 @@ function love.load()
   local npc = Entity(math.floor(screen_width / 2 - 5), math.floor(screen_height / 2), "@", {255, 255, 0, 255})
   local entities = {player, npc}
 
+  -- Initializing map
+  local map = map_utils.make_map(map_width, map_height)
+
   -- Initialiazing game state.
   game = {
     entities = entities,
-    map = map_utils.make_map(map_width, map_height),
+    map = map,
     user_input = {
       keys = {},
       mouseXY = {0, 0},
@@ -49,6 +52,9 @@ function love.load()
       pressed_key = false
     }
   }
+
+  -- Placing player at the free space.
+  game.entities[PLAYER].x, game.entities[PLAYER].y = unpack(map:find_rand(Tile(true), 1000))
 end
 
 function love.update(dt)
@@ -60,7 +66,8 @@ function love.update(dt)
 
     if move then
       local dx, dy = unpack(move)
-      if game.map:get_tile(game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy).walkable then
+      local tile = game.map:get_tile(game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy)
+      if tile and tile.walkable then
         game.entities[PLAYER]:move(dx, dy)
       end
     end

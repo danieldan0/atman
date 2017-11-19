@@ -1,3 +1,4 @@
+local ROT = require 'lib/rotLove/rot'
 local Map = require 'map'
 local Tile = require 'tile'
 
@@ -5,10 +6,11 @@ map_utils = {}
 
 function map_utils.make_map(w, h)
   map = Map:new(w, h)
-  map:set_all(Tile(true))
-  map:set_tile(2, 3, Tile())
-  map:set_tile(3, 3, Tile())
-  map:set_tile(4, 3, Tile())
+  local mapgen = ROT.Map.Brogue(26, 20)
+  local function callback(x, y, v)
+    map:set_tile(x, y, Tile(v == 0))
+  end
+  mapgen:create(callback, true)
   return map
 end
 
