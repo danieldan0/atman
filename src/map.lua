@@ -40,7 +40,7 @@ end
 -- @param y an integer
 -- @return a bool
 function Map:in_bounds(x, y)
-  return x >= 0 and x < self.width and y > 0 and y < self.height
+  return (x >= 0 and x < self.width) and (y > 0 and y < self.height)
 end
 
 --- Sets a value in position(x, y) to the new value
@@ -48,9 +48,10 @@ end
 -- @param x an integer
 -- @param y an integer
 -- @param v any value
-function Map:set_tile(v, x, y)
-  assert(inBounds(x, y), "Trying to set tile out of the map bounds.")
-  self.data[self.to_index(x, y)] = v
+function Map:set_tile(x, y, v)
+  if self:in_bounds(x, y) then
+    self.data[self:to_index(x, y)] = v
+  end
 end
 
 --- Sets all values in the map to the new value.
@@ -76,7 +77,7 @@ function Map:get_tile(x, y)
   if type(x) == "string" then
     return self:get_str(x)
   end
-  return self.data[to_index(x, y)]
+  return self.data[self:to_index(x, y)]
 end
 
 -- - Iterate over map region.
@@ -88,7 +89,7 @@ end
 function Map:iter(x, y, w, h, func)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      self:set_tile(row, column, func(self.get_tile(row, column)))
+      self:set_tile(column, row, func(self.get_tile(column, row)))
     end
   end
 end
@@ -102,7 +103,7 @@ end
 function Map:iter_xy(x, y, w, h, func)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      self:set_tile(row, column, func(self:get_tile(row, column), row, column))
+      self:set_tile(column, row, func(self:get_tile(column, row), column, row))
     end
   end
 end
@@ -130,7 +131,7 @@ function Map:submap(x, y, w, h)
   local data = {}
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      data:insert(self:get_tile(row, column))
+      data:insert(self:get_tile(column, row))
     end
   end
   map.data = data
@@ -147,8 +148,8 @@ end
 function Map:find_region(x, y, w, h, v)
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      if self:get_tile(row, column) == v then
-        return {row, column}
+      if self:get_tile(column, row) == v then
+        return {column, row}
       end
     end
   end
@@ -199,7 +200,7 @@ function Map:check(x, y, w, h, func)
   local results = {}
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      if func(self:get_tile(row, column)) then
+      if func(self:get_tile(column, row)) then
         results[x.tostring() .. ";" .. y.tostring()] = true
       end
     end
@@ -218,7 +219,7 @@ function Map:check_xy(x, y, w, h, func)
   local results = {}
   for row = y, y + h - 1 do
     for column = x, x + w - 1 do
-      if func(self:get_tile(row, column), row, column) then
+      if func(self:get_tile(column, row), column, row) then
         results[x.tostring() .. ";" .. y.tostring()] = true
       end
     end

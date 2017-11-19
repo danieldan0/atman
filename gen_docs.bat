@@ -1,3 +1,1 @@
-cd src
-ldoc -c "..\config.ld" .
-cd ..
+ldoc -c ".\config.ld" src

@@ -60,7 +60,9 @@ function love.update(dt)
 
     if move then
       local dx, dy = unpack(move)
-      game.entities[PLAYER]:move(dx, dy)
+      if game.map:get_tile(game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy).walkable then
+        game.entities[PLAYER]:move(dx, dy)
+      end
     end
 
     if exit then
@@ -89,7 +91,7 @@ end
 function love.mousemoved(x, y, dx, dy, istouch)
   -- Correcting mouse coordinates.
   game.user_input.mouseXY = utils.fisheye({x, y}, 640, 496, 1.15, 1.06, 1.065)
-  game.user_input.tileXY = {math.floor(game.user_input.mouseXY[1] / 24), math.floor(game.user_input.mouseXY[2] / 24)}
+  game.user_input.tileXY = {math.floor((game.user_input.mouseXY[1] - 12) / 24), math.floor(game.user_input.mouseXY[2] / 24)}
 end
 
 function love.draw()

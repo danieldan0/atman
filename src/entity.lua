@@ -10,7 +10,6 @@ function Entity:initialize(x, y, char, color)
 end
 
 function Entity:move(dx, dy)
-  print(self.x * self.y)
   self.x = self.x + dx
   self.y = self.y + dy
 end
