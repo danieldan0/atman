@@ -16,16 +16,25 @@ end
 
 function render_utils.draw_tile(v, x, y)
   local wall = not v.transparent
-  if wall then
-    render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.dark_wall)
+  if fov_map[x..";"..y] then
+    if wall then
+      render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.light_wall)
+    else
+      render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.light_ground)
+    end
   else
-    render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.dark_ground)
+    if wall then
+      render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.dark_wall)
+    else
+      render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.dark_ground)
+    end
   end
   return v
 end
 
-function render_utils.render_all(entities, map, colors)
+function render_utils.render_all(entities, map, fov, colors)
   colors_table = colors
+  fov_map = fov
   map:foreach_xy(render_utils.draw_tile)
   for id, entity in pairs(entities) do
     render_utils.draw_char(entity.char, entity.x, entity.y, entity.color, {0, 0, 0, 0})

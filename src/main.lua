@@ -1,4 +1,5 @@
 local moonshine = require 'lib/moonshine'
+local ROT = require 'lib/rotLove/rot'
 local utils = require 'utils'
 local handle_input = require 'input_handlers'
 local render_utils = require 'render_utils'
@@ -6,12 +7,14 @@ local Entity = require 'entity'
 local Map = require 'map'
 local map_utils = require 'map_utils'
 local colors = require 'colors'
+local fov_utils = require 'fov_utils'
 
 screen_width = 26
 screen_height = 20
 map_width = 26
 map_height = 15
 PLAYER = 1
+game = {}
 
 function love.load()
   -- Loading shaders
@@ -41,10 +44,14 @@ function love.load()
   -- Initializing map
   local map = map_utils.make_map(map_width, map_height)
 
+  -- Initializing FOV
+  fov = ROT.FOV.Recursive:new(fov_utils.light_callback)
+
   -- Initialiazing game state.
   game = {
     entities = entities,
     map = map,
+    fov_map = {},
     user_input = {
       keys = {},
       mouseXY = {0, 0},
@@ -55,6 +62,7 @@ function love.load()
 
   -- Placing player at the free space.
   game.entities[PLAYER].x, game.entities[PLAYER].y = unpack(map:find_rand(Tile(true), 1000))
+  fov:compute(game.entities[PLAYER].x, game.entities[PLAYER].y, 5, fov_utils.compute_callback)
 end
 
 function love.update(dt)
@@ -69,6 +77,8 @@ function love.update(dt)
       local tile = game.map:get_tile(game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy)
       if tile and tile.walkable then
         game.entities[PLAYER]:move(dx, dy)
+        game.fov_map = {}
+        fov:compute(game.entities[PLAYER].x, game.entities[PLAYER].y, 5, fov_utils.compute_callback)
       end
     end
 
@@ -108,7 +118,7 @@ function love.draw()
   end)
 
   s_screen(function()
-    render_utils.render_all(game.entities, game.map, colors)
+    render_utils.render_all(game.entities, game.map, game.fov_map, colors)
     -- cursors
     love.graphics.setColor({255, 0, 0, 255})
     love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
