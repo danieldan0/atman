@@ -1,6 +1,6 @@
 render_utils = {}
-
 colors_table = {}
+game_map = {}
 
 function render_utils.draw_char(char, x, y, color, bg)
   love.graphics.setColor(bg)
@@ -22,7 +22,7 @@ function render_utils.draw_tile(v, x, y)
     else
       render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.light_ground)
     end
-  else
+  elseif game_map:get_tile(x, y).explored then
     if wall then
       render_utils.draw_char('', x, y, {0, 0, 0, 0}, colors.dark_wall)
     else
@@ -35,9 +35,12 @@ end
 function render_utils.render_all(entities, map, fov, colors)
   colors_table = colors
   fov_map = fov
+  game_map = map
   map:foreach_xy(render_utils.draw_tile)
   for id, entity in pairs(entities) do
-    render_utils.draw_char(entity.char, entity.x, entity.y, entity.color, {0, 0, 0, 0})
+    if fov_map[entity.x..";"..entity.y] then
+      render_utils.draw_char(entity.char, entity.x, entity.y, entity.color, {0, 0, 0, 0})
+    end
   end
 end
 

@@ -14,6 +14,8 @@ function Tile:initialize(walkable, transparent)
   else
     self.transparent = self.walkable
   end
+
+  self.explored = false
 end
 
 function Tile:__eq(other)

@@ -5,6 +5,9 @@ function fov_utils.light_callback(fov, x, y)
 end
 
 function fov_utils.compute_callback(x, y, r, v)
+  if game.map:in_bounds(x, y) then
+    game.map.data[game.map:to_index(x, y)].explored = true
+  end
   game.fov_map[x..";"..y] = v
 end
 
