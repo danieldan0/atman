@@ -36,21 +36,10 @@ function love.load()
   -- Loading images
   frame = love.graphics.newImage("assets/images/screen-frame.png")
 
-  -- Initializing entities
-  local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255})
-  local npc = Entity(math.floor(screen_width / 2 - 5), math.floor(screen_height / 2), "@", {255, 255, 0, 255})
-  local entities = {player, npc}
-
-  -- Initializing map
-  local map = map_utils.make_map(map_width, map_height)
-
-  -- Initializing FOV
-  fov = ROT.FOV.Recursive:new(fov_utils.light_callback)
-
   -- Initialiazing game state.
   game = {
-    entities = entities,
-    map = map,
+    entities = {},
+    map = {},
     fov_map = {},
     user_input = {
       keys = {},
@@ -60,8 +49,19 @@ function love.load()
     }
   }
 
+  -- Initializing entities
+  local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255})
+  local npc = Entity(math.floor(screen_width / 2 - 5), math.floor(screen_height / 2), "@", {255, 255, 0, 255})
+  game.entities = {player, npc}
+
+  -- Initializing map
+  game.map = map_utils.make_map(map_width, map_height, 2)
+
+  -- Initializing FOV
+  fov = ROT.FOV.Recursive:new(fov_utils.light_callback)
+
   -- Placing player at the free space.
-  game.entities[PLAYER].x, game.entities[PLAYER].y = unpack(map:find_rand(Tile(true), 1000))
+  game.entities[PLAYER].x, game.entities[PLAYER].y = unpack(game.map:find_rand(Tile(true), 1000))
   fov:compute(game.entities[PLAYER].x, game.entities[PLAYER].y, 5, fov_utils.compute_callback)
 end
 
