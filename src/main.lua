@@ -51,8 +51,7 @@ function love.load()
 
   -- Initializing entities
   local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255})
-  local npc = Entity(math.floor(screen_width / 2 - 5), math.floor(screen_height / 2), "@", {255, 255, 0, 255})
-  game.entities = {player, npc}
+  game.entities = {player}
 
   -- Initializing map
   game.map = map_utils.make_map(map_width, map_height, 2)
@@ -97,6 +96,9 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+  if key == "`" then
+    debug.debug()
+  end
   game.user_input.keys[key] = true
   game.user_input.pressed_key = true
 end

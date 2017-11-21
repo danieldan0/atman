@@ -13,7 +13,7 @@ function map_utils.make_map(w, h, monsters_per_room)
   end
   mapgen:create(callback, true)
   local rooms = mapgen:getRooms()
-  for _, room in ipairs(rooms) do
+  for _, room in pairs(rooms) do
     local monsters = 0
     while monsters < monsters_per_room do
       local x, y = ROT.RNG:random(room:getLeft(), room:getRight()), ROT.RNG:random(room:getRight(), room:getBottom())
@@ -24,7 +24,7 @@ function map_utils.make_map(w, h, monsters_per_room)
           break
         end
       end
-      if map:get_tile(x, y) ~= Tile() and not occupied then
+      if map:get_tile(x, y) ~= Tile() and (not occupied) then
         table.insert(game.entities, Entity(x, y, "?", {ROT.RNG:random(0, 255), ROT.RNG:random(0, 255), ROT.RNG:random(0, 255), 255}))
         monsters = monsters + 1
       end
