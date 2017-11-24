@@ -1,7 +1,7 @@
 local ROT = require 'lib/rotLove/rot'
 local Map = require 'map'
 local Tile = require 'tile'
-local Entity = require 'entity'
+local Entity = (require 'entity').Entity
 
 map_utils = {}
 
@@ -25,7 +25,7 @@ function map_utils.make_map(w, h, monsters_per_room)
         end
       end
       if map:get_tile(x, y) ~= Tile() and (not occupied) then
-        table.insert(game.entities, Entity(x, y, "?", {ROT.RNG:random(0, 255), ROT.RNG:random(0, 255), ROT.RNG:random(0, 255), 255}))
+        table.insert(game.entities, Entity(x, y, "?", {ROT.RNG:random(0, 255), ROT.RNG:random(0, 255), ROT.RNG:random(0, 255), 255}, "???", true))
         monsters = monsters + 1
       end
     end

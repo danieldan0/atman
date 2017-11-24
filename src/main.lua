@@ -3,7 +3,7 @@ local ROT = require 'lib/rotLove/rot'
 local utils = require 'utils'
 local handle_input = require 'input_handlers'
 local render_utils = require 'render_utils'
-local Entity = require 'entity'
+local Entity, get_blocking_entities_at_location = (require 'entity').Entity, (require 'entity').get_blocking_entities_at_location
 local Map = require 'map'
 local map_utils = require 'map_utils'
 local colors = require 'colors'
@@ -50,7 +50,7 @@ function love.load()
   }
 
   -- Initializing entities
-  local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255})
+  local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255}, "player", true)
   game.entities = {player}
 
   -- Initializing map
@@ -73,8 +73,9 @@ function love.update(dt)
 
     if move then
       local dx, dy = unpack(move)
-      local tile = game.map:get_tile(game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy)
-      if tile and tile.walkable then
+      local destination_x, destination_y = game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy
+      local tile = game.map:get_tile(destination_x, destination_y)
+      if tile and tile.walkable and not get_blocking_entities_at_location(game.entities, destination_x, destination_y) then
         game.entities[PLAYER]:move(dx, dy)
         game.fov_map = {}
         fov:compute(game.entities[PLAYER].x, game.entities[PLAYER].y, 5, fov_utils.compute_callback)
