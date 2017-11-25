@@ -1,5 +1,6 @@
 local moonshine = require 'lib/moonshine'
 local utils = require 'utils'
+local render = require 'render'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -58,6 +59,7 @@ function love.draw()
     -- rendering a cursor
     love.graphics.setColor({255, 0, 0, 255})
     love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
+    render.draw_char("?", 3, 4, {255, 255, 255, 255}, {0, 0, 0, 0})
   end)
 
   -- Drawing a screen frame.
