@@ -22,9 +22,6 @@ game.map:set(5, 4, Tile.wall)
 game.map:set(3, 6, Tile.wall)
 game.map:set(5, 6, Tile.wall)
 
-local test = Entity({moo = "moo"})
-print(test.moo)
-
 -- Loading assets
 function love.load()
     -- Loading shaders

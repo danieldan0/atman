@@ -15,6 +15,7 @@ function Entity:__init(components)
     
     self.components = components
 
+    -- Making metamethods for components
     local index = self.__index
     setmetatable(self, {__index = 
         function(table, key)
@@ -24,8 +25,13 @@ function Entity:__init(components)
             else
                 return index(table, key)
             end
+        end,
+    __newindex =
+        function(table, key, value)
+            table.components[key] = value
         end
     })
+
     return self
 end
 
