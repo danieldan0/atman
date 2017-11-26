@@ -3,6 +3,7 @@ local utils = require 'utils'
 local render = require 'render'
 local Map = require 'map'
 local Tile = require 'tile'
+local Entity = require 'entity'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -21,6 +22,9 @@ game.map:set(5, 4, Tile.wall)
 game.map:set(3, 6, Tile.wall)
 game.map:set(5, 6, Tile.wall)
 
+local test = Entity({moo = "moo"})
+print(test.moo)
+
 -- Loading assets
 function love.load()
     -- Loading shaders
@@ -38,15 +42,18 @@ function love.load()
     s_screen.scanlines.thickness = 0.5
     s_screen.crt.scaleFactor = {1.15, 1.15}
 
-    -- Loading font
+    -- Loading font.
     font = love.graphics.newFont("assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf", 24)
     love.graphics.setFont(font)
 
     -- Loading screen frame image.
     frame = love.graphics.newImage("assets/images/screen-frame.png")
+
+    -- Hiding cursor.
+    love.mouse.setVisible(false)
 end
 
--- Correcting mouse position
+-- Correcting mouse position.
 function love.mousemoved(x, y, dx, dy, istouch)
     -- Correcting mouse coordinates.
     game.user_input.mouseXY = utils.fisheye({x, y}, 640, 496, 1.15, 1.06, 1.065)
@@ -64,7 +71,7 @@ function love.draw()
     -- Drawing all other stuff.
     s_screen(function()
         render.render_all(game.user_input.tileXY[1], game.user_input.tileXY[2], 26, 20, game.map)
-        -- rendering a cursor
+        -- Rendering a cursor.
         love.graphics.setColor({255, 0, 0, 255})
         love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
     end)
