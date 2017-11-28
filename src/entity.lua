@@ -12,8 +12,12 @@ function Entity:__init(components)
         self.id = next_id
         next_id = next_id + 1
     end
+
+    self.components = {}
     
-    self.components = components
+    for _, component in ipairs(components) do
+        self.components[component.name] = component
+    end
 
     -- Making metamethods for components
     local index = self.__index

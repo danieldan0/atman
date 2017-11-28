@@ -2,14 +2,14 @@
 
 utils = {}
 
-function utils.readAll(file)
+function utils.read_all(file)
   local f = io.open(file, "rb")
   local content = f:read("*all")
   f:close()
   return content
 end
 
-function utils.inArea(x, y, area_x, area_y, area_w, area_h)
+function utils.in_area(x, y, area_x, area_y, area_w, area_h)
   return (((x >= area_x) and (x <= area_x + area_w)) and ((y >= area_y) and (y <= area_y + area_h)))
 end
 
