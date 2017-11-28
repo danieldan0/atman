@@ -25,10 +25,7 @@ game = {
         pressed_key = false
     }
 }
-game.map:set(0, 0, Tile.floor)
-game.map:set(0, 1, Tile.floor)
-game.map:set(1, 0, Tile.floor)
-game.map:set(1, 1, Tile.floor)
+game.map:set_all(Tile.floor)
 game.map:set(3, 4, Tile.wall)
 game.map:set(5, 4, Tile.wall)
 game.map:set(3, 6, Tile.wall)

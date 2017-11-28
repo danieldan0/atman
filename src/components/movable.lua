@@ -8,8 +8,8 @@ function Movable:__init()
 end
 
 function Movable:move(dx, dy, map)
-    local new_pos = self.position:add(Position(dx, dy))
-    if map:get(new_pos.x, new_pos.y) and (not map:get(new_pos.x, new_pos.y).blocked) then
+    local new_pos = Position(self.position.x + dx, self.position.y + dy)
+    if map:get(new_pos.x, new_pos.y) and not map:get(new_pos.x, new_pos.y).blocked then
         self.position = new_pos
         return true
     end
