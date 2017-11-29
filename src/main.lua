@@ -2,6 +2,7 @@ local moonshine = require 'lib/moonshine'
 local utils = require 'utils'
 local render = require 'render'
 local Map = require 'map'
+local Mapgen = require 'mapgen'
 local Tile = require 'tile'
 local Entity = require 'entity'
 local Position = require 'components/position'
@@ -13,7 +14,7 @@ local Input = require 'components/input'
 -- Global, because I can't make pointers or something in Lua.
 -- Or I could do it in the other way?
 game = {
-    map = Map(100, 100),
+    map = Mapgen.generate(100, 100),
     user_input = {
         -- Corrected mouse coords
         mouseXY = {0, 0},
@@ -25,13 +26,9 @@ game = {
         pressed_key = false
     }
 }
-game.map:set_all(Tile.floor)
-game.map:set(3, 4, Tile.wall)
-game.map:set(5, 4, Tile.wall)
-game.map:set(3, 6, Tile.wall)
-game.map:set(5, 6, Tile.wall)
+
 player = Entity {
-    Position(0, 0),
+    Position(unpack(game.map:find_rand(Tile.floor, 10000))),
     Movable(),
     Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
     Input()

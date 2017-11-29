@@ -15,7 +15,9 @@ function render.draw_char(char, x, y, color, bg)
 end
 
 function render.draw_tile(x, y, v, camera_x, camera_y)
-    render.draw_char(v.char, x - camera_x, y - camera_y, v.color, {0, 0, 0, 0})
+    if v then
+        render.draw_char(v.char, x - camera_x, y - camera_y, v.color, {0, 0, 0, 0})
+    end
     return v
 end
 
@@ -28,8 +30,8 @@ function render.draw_entity(entity, camera_x, camera_y, w, h)
 end
 
 function render.render_all(x, y, w, h, map, entities)
-    x = math.max(0, math.max(0, math.min(x, map.width - 1)) - (w / 2))
-    y = math.max(0, math.max(0, math.min(y, map.height - 1)) - (h / 2))
+    x = math.max(0, math.max(0, math.min(x, map.width - 1 - (w / 2))) - (w / 2)) + 1
+    y = math.max(0, math.max(0, math.min(y, map.height - 1 - (h / 2))) - (h / 2)) + 1
     map:for_region(math.floor(x), math.floor(y), w, h, render.draw_tile, math.floor(x), math.floor(y))
     for _, entity in ipairs(entities) do
         render.draw_entity(entity, x, y, w, h)
