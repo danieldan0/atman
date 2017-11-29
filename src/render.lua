@@ -22,8 +22,8 @@ function render.draw_tile(x, y, v, camera_x, camera_y)
 end
 
 function render.draw_entity(entity, camera_x, camera_y, w, h)
-    if entity.drawable and entity.position and
-    utils.in_area(entity.position.x, entity.position.y, camera_x, camera_y, w, h) then
+    if entity and entity.drawable and entity.position and
+    utils.in_area(entity.position.x, entity.position.y, camera_x, camera_y, w - 1, h - 1) then
         render.draw_char(entity.drawable.char, entity.position.x - camera_x,
                         entity.position.y - camera_y, entity.drawable.fg_color, entity.drawable.bg_color)
     end

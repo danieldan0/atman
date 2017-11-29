@@ -9,12 +9,15 @@ local Position = require 'components/position'
 local Movable = require 'components/movable'
 local Drawable = require 'components/drawable'
 local Input = require 'components/input'
+local PlayerActor = require 'components/player_actor'
+local MonsterActor = require 'components/monster_actor'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
 -- Or I could do it in the other way?
 game = {
     map = Mapgen.generate(100, 100),
+    entities = {},
     user_input = {
         -- Corrected mouse coords
         mouseXY = {0, 0},
@@ -27,12 +30,33 @@ game = {
     }
 }
 
+PLAYER_ID = 0
+
 player = Entity {
     Position(unpack(game.map:find_rand(Tile.floor, 10000))),
     Movable(),
     Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
-    Input()
+    Input(),
+    PlayerActor()
 }
+
+game.entities[player.id + 1] = player
+
+local function monster_template()
+    return {
+        Position(unpack(game.map:find_rand(Tile.floor, 10000))),
+        Movable(),
+        Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
+        Input(),
+        MonsterActor()
+    }
+end
+
+for i = 1, 10 do
+    local monster = Entity(monster_template())
+    game.entities[monster.id + 1] = monster
+end
+
 
 -- Loading assets
 function love.load()
@@ -71,7 +95,11 @@ end
 
 function love.update(dt)
     if game.user_input.pressed_key then
-        player.input.input(player, game.user_input, game.map)
+        for id, entity in ipairs(game.entities) do
+            if entity and entity.actor then
+                entity.actor.act(entity)
+            end
+        end
         game.user_input.pressed_key = false
     end
 end
@@ -98,7 +126,8 @@ function love.draw()
 
     -- Drawing all other stuff.
     s_screen(function()
-        render.render_all(player.position.x, player.position.y, 26, 20, game.map, {player})
+        render.render_all(game.entities[PLAYER_ID + 1].position.x, player.position.y, 26, 20,
+                            game.map, game.entities)
         -- Rendering a cursor.
         love.graphics.setColor({255, 0, 0, 255})
         love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)

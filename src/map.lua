@@ -1,5 +1,6 @@
+local ROT = require "lib/rotLove/rot"
 local Tile = require "tile"
-local Map = require("class")()
+Map = require("class")()
 
 function Map:__init(width, height)
     self.width = width
@@ -54,11 +55,9 @@ function Map:foreach(func, ...)
 end
 
 function Map:find_region_rand(x, y, w, h, v, attempts)
-    math.randomseed(os.time())
-    math.random(); math.random(); math.random()
     for i = 1, attempts do
-        local x = math.random(x, w - 1)
-        local y = math.random(y, h - 1)
+        local x = ROT.RNG:random(x, w - 1)
+        local y = ROT.RNG:random(y, h - 1)
         if self:get(x, y) == v then
             return {x, y}
         end
