@@ -1,4 +1,5 @@
 local moonshine = require 'lib/moonshine'
+local ROT = require "lib/rotLove/rot"
 local utils = require 'utils'
 local render = require 'render'
 local Map = require 'map'
@@ -18,6 +19,8 @@ local Effects = require 'components/effects'
 local Listener = require 'components/listener'
 local Sender = require 'components/sender'
 local Log = require 'components/log'
+local Inventory = require 'components/inventory'
+local Item = require 'components/item'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -51,7 +54,8 @@ player = Entity ({
     PlayerActor(),
     Sender(),
     Listener(),
-    Log(4)
+    Log(4),
+    Inventory(1)
 }, "player")
 
 game.entities[player.id + 1] = player
@@ -72,11 +76,26 @@ local function monster_template()
     }, "?"}
 end
 
-for i = 1, 30 do
+local function gold_template(amount)
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable("$", {255, 255, 0, 255}, {0, 0, 0, 255}),
+        Item(amount)
+    }, "gold"}
+end
+
+for i = 1, 40 do
     local monster = Entity(unpack(monster_template()))
     game.entities[monster.id + 1] = monster
 end
 
+for i = 1, 100 do
+    local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
+    game.entities[gold.id + 1] = gold
+end
+
+game.entities[PLAYER_ID + 1].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
 
 -- Loading assets
 function love.load()

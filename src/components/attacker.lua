@@ -1,3 +1,4 @@
+local ROT = require "lib/rotLove/rot"
 Attacker = require("class")()
 Attacker.name = "attacker"
 
@@ -8,12 +9,13 @@ end
 
 function Attacker:attack(id)
     if game.entities[id + 1] and game.entities[id + 1].alive and game.entities[id + 1].destroyable then
-        game.entities[id + 1].destroyable.take_damage(game.entities[id + 1], self.attacker.dmg)
+        local dmg = self.attacker.dmg + ROT.RNG:random(-2, 2)
+        game.entities[id + 1].destroyable.take_damage(game.entities[id + 1], dmg)
         if self.sender then
-            self.sender.send(self, id, self.name .." attacks you! -".. self.attacker.dmg .." HP", {255, 0, 0, 255})
+            self.sender.send(self, id, self.name .." attacks you! -".. dmg .." HP", {255, 0, 0, 255})
         end
         if self.log then
-            self.log.add(self, "You attack ".. game.entities[id + 1].name .."! ".. self.attacker.dmg .." DMG", {255, 255, 0, 255})
+            self.log.add(self, "You attack ".. game.entities[id + 1].name .."! ".. dmg .." DMG", {255, 255, 0, 255})
         end
     end
 end

@@ -21,7 +21,7 @@ local function blink(id, start)
 end
 
 function Destroyable:take_damage(dmg)
-    self.destroyable.hp = math.max(0, self.destroyable.hp - dmg)
+    self.destroyable.hp = math.min(self.destroyable.hp, math.max(0, self.destroyable.hp - dmg))
     if self.effects then
         self.effects.blink(self, 2)
     end

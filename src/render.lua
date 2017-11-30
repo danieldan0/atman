@@ -63,6 +63,8 @@ function render.render_all(x, y, w, h, map, entities)
     local player = entities[PLAYER_ID + 1]
     render.draw_str(player.destroyable.hp.."/"..player.destroyable.max_hp.." HP",
                     0, 19, {0, 255, 0, 255}, {0, 0, 0, 255})
+    render.draw_str(player.inventory.inv["gold"].item.amount .." $",
+                    9, 19, {255, 255, 0, 255}, {0, 0, 0, 255})
     render.draw_log(player.log.get(player, w, 3), 0, 16)
 end
 
