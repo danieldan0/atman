@@ -3,8 +3,9 @@ Entity = require("class")()
 local free_ids = {}
 local next_id = 0
 
-function Entity:__init(components)
+function Entity:__init(components, name)
     self.alive = true
+    self.name = #name > 0 and name or ""
     
     local id = #free_ids
     if id ~= 0 then
@@ -33,7 +34,7 @@ function Entity:__init(components)
             local component = table.components[key]
             if component ~= nil then
                 return component
-            elseif key == "id" or key == "die" or key == "alive" or key == "components" then
+            elseif key == "id" or key == "die" or key == "alive" or key == "components" or key == "name" then
                 return table[key]
             else
                 return nil

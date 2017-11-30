@@ -17,7 +17,7 @@ function Movable:can_move(new_pos, map, entities)
     for id, entity in ipairs(entities) do
         if entity and entity.alive and entity.position and entity.position.x == new_pos.x and
         entity.position.y == new_pos.y and entity.position.blocks then
-            return id
+            return id - 1
         end
     end
     return true

@@ -15,6 +15,9 @@ local Attacker = require 'components/attacker'
 local Destroyable = require 'components/destroyable'
 local FOV = require 'components/fov'
 local Effects = require 'components/effects'
+local Listener = require 'components/listener'
+local Sender = require 'components/sender'
+local Log = require 'components/log'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -36,7 +39,7 @@ game = {
 
 PLAYER_ID = 0
 
-player = Entity {
+player = Entity ({
     Position(unpack(game.map:find_rand(Tile.floor, 10000))),
     Movable(),
     Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
@@ -45,15 +48,18 @@ player = Entity {
     Destroyable(20),
     FOV(5),
     Effects(),
-    PlayerActor()
-}
+    PlayerActor(),
+    Sender(),
+    Listener(),
+    Log(4)
+}, "player")
 
 game.entities[player.id + 1] = player
 
 game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
 
 local function monster_template()
-    return {
+    return {{
         Position(unpack(utils.get_free_tile(10000))),
         Movable(),
         Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
@@ -61,12 +67,13 @@ local function monster_template()
         Attacker(5),
         Destroyable(10),
         Effects(),
+        Sender(),
         MonsterActor()
-    }
+    }, "?"}
 end
 
 for i = 1, 30 do
-    local monster = Entity(monster_template())
+    local monster = Entity(unpack(monster_template()))
     game.entities[monster.id + 1] = monster
 end
 
@@ -143,7 +150,7 @@ function love.draw()
 
     -- Drawing all other stuff.
     s_screen(function()
-        render.render_all(game.entities[PLAYER_ID + 1].position.x, player.position.y, 26, 20,
+        render.render_all(game.entities[PLAYER_ID + 1].position.x, game.entities[PLAYER_ID + 1].position.y, 26, 16,
                             game.map, game.entities)
         if not game.entities[PLAYER_ID + 1].alive then
             render.draw_str("GAME OVER", 8, 9, {255, 0, 0, 255}, {0, 0, 0, 255})

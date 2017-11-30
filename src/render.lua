@@ -26,6 +26,12 @@ function render.draw_str(str, x, y, color, bg)
     love.graphics.print({color, str}, x * 24 + 8, y * 24 + 10)
 end
 
+function render.draw_log(log, x, y)
+    for i, msg in ipairs(log) do
+        render.draw_str(tostring(msg.message), x, y + i - 1, msg.color, {0, 0, 0, 255})
+    end
+end
+
 function render.draw_tile(x, y, v, camera_x, camera_y)
     if v and game.entities[PLAYER_ID + 1].fov.map[x .. ";" .. y] then
         render.draw_char(v.char, x - camera_x, y - camera_y, v.color, {0, 0, 0, 0})
@@ -57,6 +63,7 @@ function render.render_all(x, y, w, h, map, entities)
     local player = entities[PLAYER_ID + 1]
     render.draw_str(player.destroyable.hp.."/"..player.destroyable.max_hp.." HP",
                     0, 19, {0, 255, 0, 255}, {0, 0, 0, 255})
+    render.draw_log(player.log.get(player, w, 3), 0, 16)
 end
 
 return render
