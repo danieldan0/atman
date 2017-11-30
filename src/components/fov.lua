@@ -2,10 +2,10 @@ local ROT = require 'lib/rotLove/rot'
 FOV = require("class")()
 FOV.name = "fov"
 
-_id = 0
+local _id = 0
 
 function FOV:__init(r)
-    self.name = "fov"
+    self.name = FOV.name
     self._fov = ROT.FOV.Recursive:new(FOV.light_callback)
     self.r = r
     self.map = {}

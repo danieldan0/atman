@@ -14,6 +14,7 @@ local MonsterActor = require 'components/monster_actor'
 local Attacker = require 'components/attacker'
 local Destroyable = require 'components/destroyable'
 local FOV = require 'components/fov'
+local Effects = require 'components/effects'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -40,8 +41,10 @@ player = Entity {
     Movable(),
     Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
     Input(),
-    Attacker(10),
+    Attacker(5),
+    Destroyable(20),
     FOV(5),
+    Effects(),
     PlayerActor()
 }
 
@@ -51,16 +54,18 @@ game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
 
 local function monster_template()
     return {
-        Position(unpack(game.map:find_rand(Tile.floor, 10000))),
+        Position(unpack(utils.get_free_tile(10000))),
         Movable(),
         Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
         Input(),
+        Attacker(5),
         Destroyable(10),
+        Effects(),
         MonsterActor()
     }
 end
 
-for i = 1, 10 do
+for i = 1, 30 do
     local monster = Entity(monster_template())
     game.entities[monster.id + 1] = monster
 end
@@ -105,6 +110,9 @@ function love.update(dt)
     if game.user_input.pressed_key then
         for id, entity in ipairs(game.entities) do
             if entity and entity.alive and entity.actor then
+                if not game.entities[PLAYER_ID + 1].alive then
+                    return
+                end
                 entity.actor.act(entity)
             end
         end
@@ -137,6 +145,9 @@ function love.draw()
     s_screen(function()
         render.render_all(game.entities[PLAYER_ID + 1].position.x, player.position.y, 26, 20,
                             game.map, game.entities)
+        if not game.entities[PLAYER_ID + 1].alive then
+            render.draw_str("GAME OVER", 8, 9, {255, 0, 0, 255}, {0, 0, 0, 255})
+        end
         -- Rendering a cursor.
         love.graphics.setColor({255, 0, 0, 255})
         love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)

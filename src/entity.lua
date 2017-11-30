@@ -33,8 +33,10 @@ function Entity:__init(components)
             local component = table.components[key]
             if component ~= nil then
                 return component
+            elseif key == "id" or key == "die" or key == "alive" or key == "components" then
+                return table[key]
             else
-                return index(table, key)
+                return nil
             end
         end,
     __newindex =
