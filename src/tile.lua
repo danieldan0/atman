@@ -1,25 +1,28 @@
-local class = require "lib/middleclass"
+Tile = {}
 
-Tile = class("Tile")
 
-function Tile:initialize(walkable, transparent)
-  if walkable ~= nil then
-    self.walkable = walkable
-  else
-    self.walkable = false
-  end
+Tile.void = {
+	["name"] = "Void",
+	["char"] = " ",
+	["color"] = {0, 0, 0, 255},
+	["blocked"] = true,
+	["block_sight"] = false
+}
 
-  if transparent ~= nil then
-    self.transparent = transparent
-  else
-    self.transparent = self.walkable
-  end
+Tile.floor = {
+	["name"] = "Floor",
+	["char"] = ".",
+	["color"] = {50, 50, 150, 255},
+	["blocked"] = false,
+	["block_sight"] = false
+}
 
-  self.explored = false
-end
-
-function Tile:__eq(other)
-  return self.walkable == other.walkable and self.transparent == other.transparent
-end
+Tile.wall = {
+	["name"] = "Wall",
+	["char"] = "#",
+	["color"] = {0, 0, 100, 255},
+	["blocked"] = true,
+	["block_sight"] = true
+}
 
 return Tile

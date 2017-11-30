@@ -1,131 +1,184 @@
 local moonshine = require 'lib/moonshine'
-local ROT = require 'lib/rotLove/rot'
+local ROT = require "lib/rotLove/rot"
 local utils = require 'utils'
-local handle_input = require 'input_handlers'
-local render_utils = require 'render_utils'
-local Entity, get_blocking_entities_at_location = (require 'entity').Entity, (require 'entity').get_blocking_entities_at_location
+local render = require 'render'
 local Map = require 'map'
-local map_utils = require 'map_utils'
-local colors = require 'colors'
-local fov_utils = require 'fov_utils'
+local Mapgen = require 'mapgen'
+local Tile = require 'tile'
+local Entity = require 'entity'
+local Position = require 'components/position'
+local Movable = require 'components/movable'
+local Drawable = require 'components/drawable'
+local Input = require 'components/input'
+local PlayerActor = require 'components/player_actor'
+local MonsterActor = require 'components/monster_actor'
+local Attacker = require 'components/attacker'
+local Destroyable = require 'components/destroyable'
+local FOV = require 'components/fov'
+local Effects = require 'components/effects'
+local Listener = require 'components/listener'
+local Sender = require 'components/sender'
+local Log = require 'components/log'
+local Inventory = require 'components/inventory'
+local Item = require 'components/item'
 
-screen_width = 26
-screen_height = 20
-map_width = 26
-map_height = 15
-PLAYER = 1
-game = {}
-
-function love.load()
-  -- Loading shaders
-  s_scanlines = moonshine(moonshine.effects.scanlines)
-  .chain(moonshine.effects.crt)
-  s_scanlines.scanlines.thickness = 0.5
-  s_scanlines.crt.scaleFactor = {1.15, 1.15}
-
-  s_screen = moonshine(moonshine.effects.scanlines)
-  .chain(moonshine.effects.glow)
-  .chain(moonshine.effects.crt)
-  s_screen.scanlines.thickness = 0.5
-  s_screen.crt.scaleFactor = {1.15, 1.15}
-
-  -- Loading font
-  font = love.graphics.newFont("assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf", 24)
-  love.graphics.setFont(font)
-
-  -- Loading images
-  frame = love.graphics.newImage("assets/images/screen-frame.png")
-
-  -- Initialiazing game state.
-  game = {
+-- Game state.
+-- Global, because I can't make pointers or something in Lua.
+-- Or I could do it in the other way?
+game = {
+    map = Mapgen.generate(100, 100),
     entities = {},
-    map = {},
-    fov_map = {},
     user_input = {
-      keys = {},
-      mouseXY = {0, 0},
-      tileXY = {0, 0},
-      pressed_key = false
+        -- Corrected mouse coords
+        mouseXY = {0, 0},
+        -- Position of a tile under cursor
+        tileXY = {0, 0},
+        -- Pressed keys
+        keys = {},
+        -- Was key pressed?
+        pressed_key = false
     }
-  }
+}
 
-  -- Initializing entities
-  local player = Entity(math.floor(screen_width / 2), math.floor(screen_height / 2), "@", {255, 255, 255, 255}, "player", true)
-  game.entities = {player}
+PLAYER_ID = 0
 
-  -- Initializing map
-  game.map = map_utils.make_map(map_width, map_height, 2)
+player = Entity ({
+    Position(unpack(game.map:find_rand(Tile.floor, 10000))),
+    Movable(),
+    Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
+    Input(),
+    Attacker(5),
+    Destroyable(20),
+    FOV(5),
+    Effects(),
+    PlayerActor(),
+    Sender(),
+    Listener(),
+    Log(4),
+    Inventory(1)
+}, "player")
 
-  -- Initializing FOV
-  fov = ROT.FOV.Recursive:new(fov_utils.light_callback)
+game.entities[player.id + 1] = player
 
-  -- Placing player at the free space.
-  game.entities[PLAYER].x, game.entities[PLAYER].y = unpack(game.map:find_rand(Tile(true), 1000))
-  fov:compute(game.entities[PLAYER].x, game.entities[PLAYER].y, 5, fov_utils.compute_callback)
+game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
+
+local function monster_template()
+    return {{
+        Position(unpack(utils.get_free_tile(10000))),
+        Movable(),
+        Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
+        Input(),
+        Attacker(5),
+        Destroyable(10),
+        Effects(),
+        Sender(),
+        MonsterActor()
+    }, "?"}
+end
+
+local function gold_template(amount)
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable("$", {255, 255, 0, 255}, {0, 0, 0, 255}),
+        Item(amount)
+    }, "gold"}
+end
+
+for i = 1, 40 do
+    local monster = Entity(unpack(monster_template()))
+    game.entities[monster.id + 1] = monster
+end
+
+for i = 1, 100 do
+    local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
+    game.entities[gold.id + 1] = gold
+end
+
+game.entities[PLAYER_ID + 1].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
+
+-- Loading assets
+function love.load()
+    -- Loading shaders
+    -- Just scanlines and crt, used for the screen "texture".
+    s_scanlines = moonshine(moonshine.effects.scanlines)
+    .chain(moonshine.effects.crt)
+    s_scanlines.scanlines.thickness = 0.5
+    s_scanlines.crt.scaleFactor = {1.15, 1.15}
+
+    -- Glowing screen, used for actual drawing.
+    -- Use this for rendering characters and stuff.
+    s_screen = moonshine(moonshine.effects.scanlines)
+    .chain(moonshine.effects.glow)
+    .chain(moonshine.effects.crt)
+    s_screen.scanlines.thickness = 0.5
+    s_screen.crt.scaleFactor = {1.15, 1.15}
+
+    -- Loading font.
+    font = love.graphics.newFont("assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf", 24)
+    love.graphics.setFont(font)
+
+    -- Loading screen frame image.
+    frame = love.graphics.newImage("assets/images/screen-frame0.png")
+
+    -- Hiding cursor.
+    love.mouse.setVisible(false)
+end
+
+-- Correcting mouse position.
+function love.mousemoved(x, y, dx, dy, istouch)
+    -- Correcting mouse coordinates.
+    game.user_input.mouseXY = utils.fisheye({x, y}, 640, 496, 1.15, 1.06, 1.065)
+    game.user_input.tileXY = {math.floor((game.user_input.mouseXY[1] - 12) / 24), math.floor(game.user_input.mouseXY[2] / 24)}
 end
 
 function love.update(dt)
-  if game.user_input.pressed_key then
-    local action = handle_input(game.user_input)
-    local move = action['move']
-    local exit = action['exit']
-    local fullscreen = action['fullscreen']
-
-    if move then
-      local dx, dy = unpack(move)
-      local destination_x, destination_y = game.entities[PLAYER].x + dx, game.entities[PLAYER].y + dy
-      local tile = game.map:get_tile(destination_x, destination_y)
-      if tile and tile.walkable and not get_blocking_entities_at_location(game.entities, destination_x, destination_y) then
-        game.entities[PLAYER]:move(dx, dy)
-        game.fov_map = {}
-        fov:compute(game.entities[PLAYER].x, game.entities[PLAYER].y, 5, fov_utils.compute_callback)
-      end
+    if game.user_input.pressed_key then
+        for id, entity in ipairs(game.entities) do
+            if entity and entity.alive and entity.actor then
+                if not game.entities[PLAYER_ID + 1].alive then
+                    return
+                end
+                entity.actor.act(entity)
+            end
+        end
+        game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
+        game.user_input.pressed_key = false
     end
-
-    if exit then
-      love.event.quit()
-    end
-
-    -- fullscreen is ugly
-
-    -- if fullscreen then
-    --   love.window.setFullscreen(not love.window.getFullscreen(), "exclusive")
-    -- end
-
-    game.user_input.pressed_key = false
-  end
 end
 
 function love.keypressed(key)
-  if key == "`" then
-    debug.debug()
-  end
-  game.user_input.keys[key] = true
-  game.user_input.pressed_key = true
+    if key == "`" then
+        debug.debug()
+    end
+    game.user_input.keys[key] = true
+    game.user_input.pressed_key = true
 end
-
+  
 function love.keyreleased(key)
-  game.user_input.keys[key] = nil
+    game.user_input.keys[key] = nil
 end
 
-function love.mousemoved(x, y, dx, dy, istouch)
-  -- Correcting mouse coordinates.
-  game.user_input.mouseXY = utils.fisheye({x, y}, 640, 496, 1.15, 1.06, 1.065)
-  game.user_input.tileXY = {math.floor((game.user_input.mouseXY[1] - 12) / 24), math.floor(game.user_input.mouseXY[2] / 24)}
-end
-
+-- Rendering stuff
 function love.draw()
-  s_scanlines(function()
-    love.graphics.setColor({5, 5, 5, 255})
-    love.graphics.rectangle("fill", 0, 0, 640, 480)
-  end)
+    -- Drawing black scanlines background.
+    s_scanlines(function()
+        love.graphics.setColor({5, 5, 5, 255})
+        love.graphics.rectangle("fill", 0, 0, 640, 480)
+    end)
 
-  s_screen(function()
-    render_utils.render_all(game.entities, game.map, game.fov_map, colors)
-    -- cursors
-    love.graphics.setColor({255, 0, 0, 255})
-    love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
-  end)
+    -- Drawing all other stuff.
+    s_screen(function()
+        render.render_all(game.entities[PLAYER_ID + 1].position.x, game.entities[PLAYER_ID + 1].position.y, 26, 16,
+                            game.map, game.entities)
+        if not game.entities[PLAYER_ID + 1].alive then
+            render.draw_str("GAME OVER", 8, 9, {255, 0, 0, 255}, {0, 0, 0, 255})
+        end
+        -- Rendering a cursor.
+        love.graphics.setColor({255, 0, 0, 255})
+        love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
+    end)
 
-  love.graphics.draw(frame, 0, 0)
+    -- Drawing a screen frame.
+    love.graphics.draw(frame, 0, 0)
 end
