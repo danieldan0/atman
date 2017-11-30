@@ -11,6 +11,9 @@ local Drawable = require 'components/drawable'
 local Input = require 'components/input'
 local PlayerActor = require 'components/player_actor'
 local MonsterActor = require 'components/monster_actor'
+local Attacker = require 'components/attacker'
+local Destroyable = require 'components/destroyable'
+local FOV = require 'components/fov'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -37,10 +40,14 @@ player = Entity {
     Movable(),
     Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
     Input(),
+    Attacker(10),
+    FOV(5),
     PlayerActor()
 }
 
 game.entities[player.id + 1] = player
+
+game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
 
 local function monster_template()
     return {
@@ -48,6 +55,7 @@ local function monster_template()
         Movable(),
         Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
         Input(),
+        Destroyable(10),
         MonsterActor()
     }
 end
@@ -80,7 +88,7 @@ function love.load()
     love.graphics.setFont(font)
 
     -- Loading screen frame image.
-    frame = love.graphics.newImage("assets/images/screen-frame.png")
+    frame = love.graphics.newImage("assets/images/screen-frame0.png")
 
     -- Hiding cursor.
     love.mouse.setVisible(false)
@@ -96,10 +104,11 @@ end
 function love.update(dt)
     if game.user_input.pressed_key then
         for id, entity in ipairs(game.entities) do
-            if entity and entity.actor then
+            if entity and entity.alive and entity.actor then
                 entity.actor.act(entity)
             end
         end
+        game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
         game.user_input.pressed_key = false
     end
 end

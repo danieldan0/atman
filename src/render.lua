@@ -15,14 +15,15 @@ function render.draw_char(char, x, y, color, bg)
 end
 
 function render.draw_tile(x, y, v, camera_x, camera_y)
-    if v then
+    if v and game.entities[PLAYER_ID + 1].fov.map[x .. ";" .. y] then
         render.draw_char(v.char, x - camera_x, y - camera_y, v.color, {0, 0, 0, 0})
     end
     return v
 end
 
 function render.draw_entity(entity, camera_x, camera_y, w, h)
-    if entity and entity.drawable and entity.position and
+    if entity and entity.alive and entity.drawable and entity.position
+    and game.entities[PLAYER_ID + 1].fov.map[entity.position.x .. ";" .. entity.position.y] and
     utils.in_area(entity.position.x, entity.position.y, camera_x, camera_y, w - 1, h - 1) then
         render.draw_char(entity.drawable.char, entity.position.x - camera_x,
                         entity.position.y - camera_y, entity.drawable.fg_color, entity.drawable.bg_color)

@@ -4,6 +4,8 @@ local free_ids = {}
 local next_id = 0
 
 function Entity:__init(components)
+    self.alive = true
+    
     local id = #free_ids
     if id ~= 0 then
         self.id = free_ids[id]
@@ -17,6 +19,11 @@ function Entity:__init(components)
     
     for _, component in ipairs(components) do
         self.components[component.name] = component
+    end
+    
+    self.die = function(self)
+        self.alive = false
+        table.insert(free_ids, self.id)
     end
 
     -- Making metamethods for components
@@ -37,10 +44,6 @@ function Entity:__init(components)
     })
 
     return self
-end
-
-function Entity:die()
-    table.insert(free_ids, self.id)
 end
 
 return Entity
