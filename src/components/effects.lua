@@ -44,7 +44,7 @@ function Effects:fg_color()
             if (ms >= 0.25 and ms <= 0.5) or ms >= 0.75 then
                 return color
             else
-                return {0, 0, 0, 0}
+                return  self.effects.fx.blinking.color
             end
         end
     else
@@ -56,19 +56,20 @@ function Effects:bg_color()
     return self.drawable.bg_color
 end
 
-function Effects:blink(duration, forever)
+function Effects:blink(duration, forever, color)
     self.effects.fx.blinking = {}
     self.effects.fx.blinking.duration = duration or 1
     self.effects.fx.blinking.start = love.timer.getTime()
     self.effects.fx.blinking.forever = forever ~= nil and forever or false
+    self.effects.fx.blinking.color = color or {0, 0, 0, 0}
 end
 
-function Effects:rainbow(duration, forever)
+function Effects:rainbow(duration, forever, speed)
     self.effects.fx.rainbow = {}
     self.effects.fx.rainbow.duration = duration or 1
     self.effects.fx.rainbow.start = love.timer.getTime()
     self.effects.fx.rainbow.forever = forever ~= nil and forever or true
-    self.effects.fx.rainbow.speed = 1
+    self.effects.fx.rainbow.speed = speed or 1
 end
 
 return Effects

@@ -22,6 +22,7 @@ local Sender = require 'components/sender'
 local Log = require 'components/log'
 local Inventory = require 'components/inventory'
 local Item = require 'components/item'
+local BossActor = require 'components/boss_actor'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -71,15 +72,21 @@ game.entities[player.id + 1] = player
 game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
 --game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
 
+local pos = utils.get_free_tile(10000)
+repeat
+    pos = utils.get_free_tile(10000)
+until pos ~= nil
+
 local boss = Entity({
-    Position(unpack(utils.get_free_tile(10000))),
+    Position(unpack(pos)),
     Movable(),
     Drawable("D", {255, 255, 255, 255}, {0, 0, 0, 255}),
     Attacker(10),
-    Destroyable(100),
+    Destroyable(50),
     Effects(),
     Sender(),
-    MonsterActor()
+    Inventory(0),
+    BossActor()
 }, "dragon")
 BOSS_ID = boss.id
 game.entities[BOSS_ID + 1] = boss
@@ -94,6 +101,7 @@ local function monster_template()
         Destroyable(10),
         Effects(),
         Sender(),
+        Inventory(0),
         MonsterActor()
     }, "?"}
 end
@@ -107,6 +115,53 @@ local function gold_template(amount)
     }, "gold"}
 end
 
+local function heal_template()
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable("+", {127, 255, 127, 255}, {0, 0, 0, 255}),
+        Sender(),
+        Item(0, function(self_id, other_id)
+            if other_id == PLAYER_ID then
+                game.entities[self_id + 1].sender.send(game.entities[self_id + 1], other_id, "You are healed!", {0, 255, 0, 255})
+                game.entities[self_id + 1]:die()
+                game.entities[other_id + 1].destroyable.heal(game.entities[other_id + 1], 10)
+            end
+        end)
+    }, "heal"}
+end
+
+local function trap_template()
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable("^", {255, 127, 0, 255}, {0, 0, 0, 255}),
+        Attacker(10),
+        Sender(),
+        Item(0, function(self_id, other_id)
+            game.entities[self_id + 1].attacker.attack(game.entities[self_id + 1], other_id)
+            game.entities[self_id + 1]:die()
+        end)
+    }, "trap"}
+end
+
+local function bonus_template()
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable("O", {127, 255, 127, 255}, {0, 0, 0, 255}),
+        Sender(),
+        Effects(),
+        Item(0, function(self_id, other_id)
+            if other_id == PLAYER_ID then
+                game.entities[self_id + 1].sender.send(game.entities[self_id + 1], other_id, "You feel more powerful!", {0, 255, 255, 255})
+                game.entities[self_id + 1]:die()
+                game.entities[other_id + 1].attacker.dmg = game.entities[other_id + 1].attacker.dmg + 5
+            end
+        end)
+    }, "bonus"}
+end
+
 for i = 1, 40 do
     local monster = Entity(unpack(monster_template()))
     game.entities[monster.id + 1] = monster
@@ -115,6 +170,22 @@ end
 for i = 1, 100 do
     local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
     game.entities[gold.id + 1] = gold
+end
+
+for i = 1, 25 do
+    local heal = Entity(unpack(heal_template()))
+    game.entities[heal.id + 1] = heal
+end
+
+for i = 1, 25 do
+    local trap = Entity(unpack(trap_template()))
+    game.entities[trap.id + 1] = trap
+end
+
+for i = 1, 5 do
+    local bonus = Entity(unpack(bonus_template()))
+    bonus.effects.rainbow(bonus)
+    game.entities[bonus.id + 1] = bonus
 end
 
 game.entities[PLAYER_ID + 1].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
@@ -172,7 +243,7 @@ function love.update(dt)
         game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
         game.user_input.pressed_key = false
     end
-    if not game.entities[PLAYER_ID + 1].alive and not saved then
+    if (not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive) and not saved then
         local bonus = game.entities[BOSS_ID + 1].alive and 0 or 1000
         table.insert(game.scores, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus)
         table.sort(game.scores, function(a,b) return a>b end)

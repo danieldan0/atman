@@ -30,4 +30,21 @@ function Destroyable:take_damage(dmg)
     end
 end
 
+function Destroyable:take_damage(dmg)
+    self.destroyable.hp = math.min(self.destroyable.hp, math.max(0, self.destroyable.hp - dmg))
+    if self.effects then
+        self.effects.blink(self, 2)
+    end
+    if self.destroyable.hp == 0 then
+        self:die()
+    end
+end
+
+function Destroyable:heal(hp)
+    self.destroyable.hp = math.min(self.destroyable.hp + hp, self.destroyable.max_hp)
+    if self.effects then
+        self.effects.blink(self, 2, nil, {0, 255, 0, 255})
+    end
+end
+
 return Destroyable
