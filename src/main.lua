@@ -23,6 +23,7 @@ local Log = require 'components/log'
 local Inventory = require 'components/inventory'
 local Item = require 'components/item'
 local BossActor = require 'components/boss_actor'
+local Buffs = require 'components/buffs'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -44,6 +45,7 @@ game = {
 }
 
 local saved = false
+local time = 0
 
 if love.filesystem.exists("scores.dat") then
     game.scores = bitser.loadLoveFile('scores.dat')
@@ -64,7 +66,8 @@ player = Entity ({
     Sender(),
     Listener(),
     Log(4),
-    Inventory(1)
+    Inventory(1),
+    Buffs()
 }, "player")
 
 game.entities[player.id + 1] = player
@@ -82,11 +85,12 @@ local boss = Entity({
     Movable(),
     Drawable("D", {255, 255, 255, 255}, {0, 0, 0, 255}),
     Attacker(10),
-    Destroyable(50),
+    Destroyable(100),
     Effects(),
     Sender(),
     Inventory(0),
-    BossActor()
+    BossActor(),
+    Buffs()
 }, "dragon")
 BOSS_ID = boss.id
 game.entities[BOSS_ID + 1] = boss
@@ -102,7 +106,8 @@ local function monster_template()
         Effects(),
         Sender(),
         Inventory(0),
-        MonsterActor()
+        MonsterActor(),
+        Buffs()
     }, "?"}
 end
 
@@ -145,6 +150,20 @@ local function trap_template()
     }, "trap"}
 end
 
+local function poison_template()
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable("^", {75, 100, 0, 255}, {0, 0, 0, 255}),
+        Attacker(10),
+        Sender(),
+        Item(0, function(self_id, other_id)
+            game.entities[other_id + 1].buffs.poison(game.entities[other_id + 1], 2, 6)
+            game.entities[self_id + 1]:die()
+        end)
+    }, "trap"}
+end
+
 local function bonus_template()
     x, y = unpack(utils.get_free_tile(10000))
     return {{
@@ -179,6 +198,11 @@ end
 
 for i = 1, 25 do
     local trap = Entity(unpack(trap_template()))
+    game.entities[trap.id + 1] = trap
+end
+
+for i = 1, 25 do
+    local trap = Entity(unpack(poison_template()))
     game.entities[trap.id + 1] = trap
 end
 
@@ -236,6 +260,9 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.update(dt)
+    if not saved then
+        time = time + dt
+    end
     if game.user_input.pressed_key then
         for id, entity in ipairs(game.entities) do
             if entity and entity.alive and entity.actor then
@@ -249,8 +276,8 @@ function love.update(dt)
         game.user_input.pressed_key = false
     end
     if (not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive) and not saved then
-        local bonus = game.entities[BOSS_ID + 1].alive and 0 or 1000
-        table.insert(game.scores, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus)
+        local bonus = (game.entities[BOSS_ID + 1].alive and 0 or 1000) - math.floor(time / 3)
+        table.insert(game.scores, math.max(game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus))
         table.sort(game.scores, function(a,b) return a>b end)
         bitser.dumpLoveFile('scores.dat', game.scores)
         saved = true
@@ -281,14 +308,24 @@ function love.draw()
     s_screen(function()
         render.render_all(game.entities[PLAYER_ID + 1].position.x, game.entities[PLAYER_ID + 1].position.y, 26, 16,
                             game.map, game.entities)
+        local min = tostring(math.floor(time / 60))
+        local sec = tostring(math.floor(time) - (math.floor(time / 60) * 60))
+        if #min < 2 then
+            min = "0"..min
+        end
+        if #sec < 2 then
+            sec = "0"..sec
+        end
+        render.draw_str(min..":"..sec, 0, 0, {255, 0, 255, 255}, {0, 0, 0, 255})
         if not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive then
             if game.entities[BOSS_ID + 1].alive then
                 render.draw_str("GAME OVER", 8, 0, {255, 0, 0, 255}, {0, 0, 0, 255})
             else
                 render.draw_str("You won!", 8, 0, {0, 255, 0, 255}, {0, 0, 0, 255})
             end
-            local bonus = game.entities[BOSS_ID + 1].alive and 0 or 1000
-            render.draw_str("Your score: "..(game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount+bonus), 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
+            local bonus = (game.entities[BOSS_ID + 1].alive and 0 or 1000) - math.floor(time / 3)
+            local score = math.max(0, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus)
+            render.draw_str("Your score: "..score, 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
             render.draw_str("Top scores:", 8, 2, {255, 255, 0, 255}, {0, 0, 0, 255})
             for i = 1, 5 do
                 if game.scores[i] then

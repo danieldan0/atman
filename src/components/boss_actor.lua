@@ -22,6 +22,7 @@ local function astar_callback(x, y)
 end
 
 function BossActor:act()
+    self.buffs.update(self)
     local dest = game.entities[PLAYER_ID + 1].position
     if self.position:dist(dest) > 10 then
         id = self.id

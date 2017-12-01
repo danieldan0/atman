@@ -28,10 +28,17 @@ function Effects:fg_color()
         if time - self.effects.fx.rainbow.start >= self.effects.fx.rainbow.duration and
         not self.effects.fx.rainbow.forever then
             self.effects.fx.rainbow = nil
-            return color
         else
             local ms = time - math.floor(time)
             color = HSV(ms * self.effects.fx.rainbow.speed * 255, 255, 255)
+        end
+    end
+    if self.effects.fx.poison then
+        if time - self.effects.fx.poison.start >= self.effects.fx.poison.duration and
+        not self.effects.fx.poison.forever then
+            self.effects.fx.poison = nil
+        else
+            color = {75, 100, 0, 255}
         end
     end
     if self.effects.fx.blinking then
@@ -44,7 +51,7 @@ function Effects:fg_color()
             if (ms >= 0.25 and ms <= 0.5) or ms >= 0.75 then
                 return color
             else
-                return  self.effects.fx.blinking.color
+                return self.effects.fx.blinking.color
             end
         end
     else
@@ -70,6 +77,13 @@ function Effects:rainbow(duration, forever, speed)
     self.effects.fx.rainbow.start = love.timer.getTime()
     self.effects.fx.rainbow.forever = forever ~= nil and forever or true
     self.effects.fx.rainbow.speed = speed or 1
+end
+
+function Effects:poison(duration, forever)
+    self.effects.fx.poison = {}
+    self.effects.fx.poison.duration = duration or 1
+    self.effects.fx.poison.start = love.timer.getTime()
+    self.effects.fx.poison.forever = forever ~= nil and forever or true
 end
 
 return Effects

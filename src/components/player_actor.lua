@@ -7,6 +7,7 @@ function PlayerActor:__init()
 end
 
 function PlayerActor:act()
+    self.buffs.update(self)
     self.input.input(self, game.user_input, game.map, game.entities)
 end
 

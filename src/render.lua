@@ -2,6 +2,11 @@ utils = require 'utils'
 
 render = {}
 
+function render.draw_rect(x, y, w, h, color)
+    love.graphics.setColor(color)
+    love.graphics.rectangle('fill', x * 24 + 8, y * 24 + 4, w * 24, h * 24)
+end
+
 function render.draw_char(char, x, y, color, bg)
     love.graphics.setColor(bg)
     love.graphics.rectangle('fill', x * 24 + 8, y * 24 + 4, 24, 24)
@@ -69,11 +74,17 @@ function render.render_all(x, y, w, h, map, entities)
         render.draw_entity(entity, x, y, w, h)
     end
     local player = entities[PLAYER_ID + 1]
+    local boss = entities[BOSS_ID + 1]
     render.draw_str(player.destroyable.hp.."/"..player.destroyable.max_hp.." HP",
                     0, 19, {0, 255, 0, 255}, {0, 0, 0, 255})
     render.draw_str(player.inventory.inv["gold"].item.amount .." $",
                     9, 19, {255, 255, 0, 255}, {0, 0, 0, 255})
     render.draw_log(player.log.get(player, w, 3), 0, 16)
+    if player.fov.map[boss.position.x .. ";" .. boss.position.y] and boss.alive then
+        render.draw_rect(6, 0, 21, 1, {127, 0, 127, 255})
+        render.draw_rect(6, 0, math.floor((boss.destroyable.hp / boss.destroyable.max_hp) * 21), 1,
+                        {255, 127, 255, 255})
+    end
 end
 
 return render

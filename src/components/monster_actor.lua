@@ -9,6 +9,7 @@ function MonsterActor:__init()
 end
 
 function MonsterActor:act()
+    self.buffs.update(self)
     local dx, dy = unpack(dirs[ROT.RNG:random(1, 4)])
     self.movable.move(self, dx, dy, game.map, game.entities)
 end
