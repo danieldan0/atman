@@ -1,3 +1,4 @@
+local ROT = require "lib/rotLove/rot"
 Destroyable = require("class")()
 Destroyable.name = "destroyable"
 
@@ -32,6 +33,9 @@ end
 
 function Destroyable:take_damage(dmg)
     self.destroyable.hp = math.min(self.destroyable.hp, math.max(0, self.destroyable.hp - dmg))
+    if self.id == PLAYER_ID then
+        dmg_sounds[ROT.RNG:random(1, 5)]:play()
+    end
     if self.effects then
         self.effects.blink(self, 2)
     end

@@ -221,6 +221,11 @@ function love.load()
     music = love.audio.newSource("assets/music/1.ogg")
     music:setLooping(true)
     music:play()
+
+    -- Loading sounds for damage.
+    dmg_sounds = {love.audio.newSource("assets/music/dmg0.ogg"), love.audio.newSource("assets/music/dmg1.ogg"),
+    love.audio.newSource("assets/music/dmg2.ogg"), love.audio.newSource("assets/music/dmg3.ogg"),
+    love.audio.newSource("assets/music/dmg4.ogg")}
 end
 
 -- Correcting mouse position.
