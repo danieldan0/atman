@@ -69,14 +69,27 @@ player = Entity ({
 game.entities[player.id + 1] = player
 
 game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
-game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
+--game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
+
+local boss = Entity({
+    Position(unpack(utils.get_free_tile(10000))),
+    Movable(),
+    Drawable("D", {255, 255, 255, 255}, {0, 0, 0, 255}),
+    Attacker(10),
+    Destroyable(100),
+    Effects(),
+    Sender(),
+    MonsterActor()
+}, "dragon")
+BOSS_ID = boss.id
+game.entities[BOSS_ID + 1] = boss
+game.entities[BOSS_ID + 1].effects.rainbow(game.entities[BOSS_ID + 1])
 
 local function monster_template()
     return {{
         Position(unpack(utils.get_free_tile(10000))),
         Movable(),
         Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
-        Input(),
         Attacker(5),
         Destroyable(10),
         Effects(),
@@ -150,7 +163,7 @@ function love.update(dt)
     if game.user_input.pressed_key then
         for id, entity in ipairs(game.entities) do
             if entity and entity.alive and entity.actor then
-                if not game.entities[PLAYER_ID + 1].alive then
+                if not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive then
                     break
                 end
                 entity.actor.act(entity)
@@ -160,7 +173,8 @@ function love.update(dt)
         game.user_input.pressed_key = false
     end
     if not game.entities[PLAYER_ID + 1].alive and not saved then
-        table.insert(game.scores, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount)
+        local bonus = game.entities[BOSS_ID + 1].alive and 0 or 1000
+        table.insert(game.scores, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus)
         table.sort(game.scores, function(a,b) return a>b end)
         bitser.dumpLoveFile('scores.dat', game.scores)
         saved = true
@@ -191,9 +205,14 @@ function love.draw()
     s_screen(function()
         render.render_all(game.entities[PLAYER_ID + 1].position.x, game.entities[PLAYER_ID + 1].position.y, 26, 16,
                             game.map, game.entities)
-        if not game.entities[PLAYER_ID + 1].alive then
-            render.draw_str("GAME OVER", 8, 0, {255, 0, 0, 255}, {0, 0, 0, 255})
-            render.draw_str("Your score: "..game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount, 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
+        if not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive then
+            if game.entities[BOSS_ID + 1].alive then
+                render.draw_str("GAME OVER", 8, 0, {255, 0, 0, 255}, {0, 0, 0, 255})
+            else
+                render.draw_str("You won!", 8, 0, {0, 255, 0, 255}, {0, 0, 0, 255})
+            end
+            local bonus = game.entities[BOSS_ID + 1].alive and 0 or 1000
+            render.draw_str("Your score: "..(game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount+bonus), 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
             render.draw_str("Top scores:", 8, 2, {255, 255, 0, 255}, {0, 0, 0, 255})
             for i = 1, 5 do
                 if game.scores[i] then
