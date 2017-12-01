@@ -1,5 +1,6 @@
 local moonshine = require 'lib/moonshine'
 local ROT = require "lib/rotLove/rot"
+local bitser = require 'lib/bitser'
 local utils = require 'utils'
 local render = require 'render'
 local Map = require 'map'
@@ -28,6 +29,7 @@ local Item = require 'components/item'
 game = {
     map = Mapgen.generate(100, 100),
     entities = {},
+    scores = {},
     user_input = {
         -- Corrected mouse coords
         mouseXY = {0, 0},
@@ -39,6 +41,12 @@ game = {
         pressed_key = false
     }
 }
+
+local saved = false
+
+if love.filesystem.exists("scores.dat") then
+    game.scores = bitser.loadLoveFile('scores.dat')
+end
 
 PLAYER_ID = 0
 
@@ -61,6 +69,7 @@ player = Entity ({
 game.entities[player.id + 1] = player
 
 game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
+game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
 
 local function monster_template()
     return {{
@@ -123,6 +132,11 @@ function love.load()
 
     -- Hiding cursor.
     love.mouse.setVisible(false)
+
+    -- Loading music loop.
+    music = love.audio.newSource("assets/music/1.ogg")
+    music:setLooping(true)
+    music:play()
 end
 
 -- Correcting mouse position.
@@ -137,13 +151,19 @@ function love.update(dt)
         for id, entity in ipairs(game.entities) do
             if entity and entity.alive and entity.actor then
                 if not game.entities[PLAYER_ID + 1].alive then
-                    return
+                    break
                 end
                 entity.actor.act(entity)
             end
         end
         game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
         game.user_input.pressed_key = false
+    end
+    if not game.entities[PLAYER_ID + 1].alive and not saved then
+        table.insert(game.scores, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount)
+        table.sort(game.scores, function(a,b) return a>b end)
+        bitser.dumpLoveFile('scores.dat', game.scores)
+        saved = true
     end
 end
 
@@ -172,7 +192,14 @@ function love.draw()
         render.render_all(game.entities[PLAYER_ID + 1].position.x, game.entities[PLAYER_ID + 1].position.y, 26, 16,
                             game.map, game.entities)
         if not game.entities[PLAYER_ID + 1].alive then
-            render.draw_str("GAME OVER", 8, 9, {255, 0, 0, 255}, {0, 0, 0, 255})
+            render.draw_str("GAME OVER", 8, 0, {255, 0, 0, 255}, {0, 0, 0, 255})
+            render.draw_str("Your score: "..game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount, 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
+            render.draw_str("Top scores:", 8, 2, {255, 255, 0, 255}, {0, 0, 0, 255})
+            for i = 1, 5 do
+                if game.scores[i] then
+                    render.draw_str(tostring(game.scores[i]), 8, 2 + i, {255, 255, 255, 255}, {0, 0, 0, 255})
+                end
+            end
         end
         -- Rendering a cursor.
         love.graphics.setColor({255, 0, 0, 255})
