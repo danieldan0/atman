@@ -55,4 +55,9 @@ function Entity:__init(components, name)
     return self
 end
 
+function clean_all()
+    free_ids = {}
+    next_id = 0
+end
+
 return Entity

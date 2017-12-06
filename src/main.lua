@@ -52,49 +52,7 @@ if love.filesystem.exists("scores.dat") then
 end
 
 PLAYER_ID = 0
-
-player = Entity ({
-    Position(unpack(game.map:find_rand(Tile.floor, 10000))),
-    Movable(),
-    Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
-    Input(),
-    Attacker(5),
-    Destroyable(20),
-    FOV(5),
-    Effects(),
-    PlayerActor(),
-    Sender(),
-    Listener(),
-    Log(4),
-    Inventory(1),
-    Buffs()
-}, "player")
-
-game.entities[player.id + 1] = player
-
-game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
---game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
-
-local pos = utils.get_free_tile(10000)
-repeat
-    pos = utils.get_free_tile(10000)
-until pos ~= nil
-
-local boss = Entity({
-    Position(unpack(pos)),
-    Movable(),
-    Drawable("D", {255, 255, 255, 255}, {0, 0, 0, 255}),
-    Attacker(10),
-    Destroyable(100),
-    Effects(),
-    Sender(),
-    Inventory(0),
-    BossActor(),
-    Buffs()
-}, "dragon")
-BOSS_ID = boss.id
-game.entities[BOSS_ID + 1] = boss
-game.entities[BOSS_ID + 1].effects.rainbow(game.entities[BOSS_ID + 1])
+BOSS_ID = 1
 
 local function monster_template()
     return {{
@@ -182,38 +140,87 @@ local function bonus_template()
     }, "bonus"}
 end
 
-for i = 1, 40 do
-    local monster = Entity(unpack(monster_template()))
-    game.entities[monster.id + 1] = monster
+function place_entities()
+    clean_all()
+
+    player = Entity ({
+        Position(unpack(game.map:find_rand(Tile.floor, 10000))),
+        Movable(),
+        Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
+        Input(),
+        Attacker(5),
+        Destroyable(20),
+        FOV(5),
+        Effects(),
+        PlayerActor(),
+        Sender(),
+        Listener(),
+        Log(4),
+        Inventory(1),
+        Buffs()
+    }, "player")
+    
+    game.entities[player.id + 1] = player
+    
+    game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
+    --game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
+    
+    local pos = utils.get_free_tile(10000)
+    repeat
+        pos = utils.get_free_tile(10000)
+    until pos ~= nil
+    
+    local boss = Entity({
+        Position(unpack(pos)),
+        Movable(),
+        Drawable("D", {255, 255, 255, 255}, {0, 0, 0, 255}),
+        Attacker(10),
+        Destroyable(100),
+        Effects(),
+        Sender(),
+        Inventory(0),
+        BossActor(),
+        Buffs()
+    }, "dragon")
+    BOSS_ID = boss.id
+    game.entities[BOSS_ID + 1] = boss
+    game.entities[BOSS_ID + 1].effects.rainbow(game.entities[BOSS_ID + 1])
+
+    for i = 1, 40 do
+        local monster = Entity(unpack(monster_template()))
+        game.entities[monster.id + 1] = monster
+    end
+
+    for i = 1, 100 do
+        local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
+        game.entities[gold.id + 1] = gold
+    end
+
+    for i = 1, 25 do
+        local heal = Entity(unpack(heal_template()))
+        game.entities[heal.id + 1] = heal
+    end
+
+    for i = 1, 25 do
+        local trap = Entity(unpack(trap_template()))
+        game.entities[trap.id + 1] = trap
+    end
+
+    for i = 1, 25 do
+        local trap = Entity(unpack(poison_template()))
+        game.entities[trap.id + 1] = trap
+    end
+
+    for i = 1, 5 do
+        local bonus = Entity(unpack(bonus_template()))
+        bonus.effects.rainbow(bonus)
+        game.entities[bonus.id + 1] = bonus
+    end
+
+    game.entities[PLAYER_ID + 1].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
 end
 
-for i = 1, 100 do
-    local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
-    game.entities[gold.id + 1] = gold
-end
-
-for i = 1, 25 do
-    local heal = Entity(unpack(heal_template()))
-    game.entities[heal.id + 1] = heal
-end
-
-for i = 1, 25 do
-    local trap = Entity(unpack(trap_template()))
-    game.entities[trap.id + 1] = trap
-end
-
-for i = 1, 25 do
-    local trap = Entity(unpack(poison_template()))
-    game.entities[trap.id + 1] = trap
-end
-
-for i = 1, 5 do
-    local bonus = Entity(unpack(bonus_template()))
-    bonus.effects.rainbow(bonus)
-    game.entities[bonus.id + 1] = bonus
-end
-
-game.entities[PLAYER_ID + 1].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
+place_entities()
 
 -- Loading assets
 function love.load()
@@ -288,6 +295,10 @@ end
 function love.keypressed(key)
     if key == "`" then
         debug.debug()
+    end
+    if key == "0" then
+        game.map = Mapgen.generate(100, 100)
+        place_entities()
     end
     game.user_input.keys[key] = true
     game.user_input.pressed_key = true
