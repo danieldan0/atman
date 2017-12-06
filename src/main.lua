@@ -158,6 +158,7 @@ local function poison_template()
         Attacker(10),
         Sender(),
         Item(0, function(self_id, other_id)
+            game.entities[self_id + 1].sender.send(game.entities[self_id + 1], other_id, "You are poisoned!", {75, 100, 0, 255})
             game.entities[other_id + 1].buffs.poison(game.entities[other_id + 1], 2, 6)
             game.entities[self_id + 1]:die()
         end)
