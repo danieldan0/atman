@@ -23,6 +23,12 @@ function Entity:__init(components, name)
     end
     
     self.die = function(self)
+        if self.id == PLAYER_ID then
+            self.log.add(self, "You died!", {177, 0, 13, 255})
+        end
+        if self.id == BOSS_ID then
+            game.entities[PLAYER_ID].log.add(game.entities[PLAYER_ID], "You won!", {255, 215, 0, 255})
+        end
         self.alive = false
         table.insert(free_ids, self.id)
     end
