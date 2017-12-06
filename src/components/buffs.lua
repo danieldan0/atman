@@ -10,13 +10,15 @@ end
 
 function Buffs:update()
     if self.buffs.active.poison then
-        if self.buffs.time - self.buffs.active.poison.start >= self.buffs.active.poison.duration then
+        if self.buffs.time - self.buffs.active.poison.start >= self.buffs.active.poison.duration
+        or self.destroyable.hp <= self.buffs.active.poison.damage then
             self.buffs.active.poison = nil
             self.effects.fx.poison = nil
         else
             self.destroyable.take_damage(self, self.buffs.active.poison.damage)
         end
     end
+    self.buffs.time = self.buffs.time + 1
 end
 
 function Buffs:poison(damage, duration)

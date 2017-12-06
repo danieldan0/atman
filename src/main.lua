@@ -277,7 +277,7 @@ function love.update(dt)
     end
     if (not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive) and not saved then
         local bonus = (game.entities[BOSS_ID + 1].alive and 0 or 1000) - math.floor(time / 3)
-        table.insert(game.scores, math.max(game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus))
+        table.insert(game.scores, math.max(0, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus))
         table.sort(game.scores, function(a,b) return a>b end)
         bitser.dumpLoveFile('scores.dat', game.scores)
         saved = true
