@@ -7,8 +7,8 @@ function Sender:__init()
 end
 
 function Sender:send(id, message, color, ...)
-    if game.entities[id + 1] and game.entities[id + 1].alive and game.entities[id + 1].listener then
-        game.entities[id + 1].listener.listen(game.entities[id + 1], self.id, {message = message, color = color}, ...)
+    if game.entities[id] and game.entities[id].alive and game.entities[id].listener then
+        game.entities[id].listener.listen(game.entities[id], self.id, {message = message, color = color}, ...)
     end
 end
 

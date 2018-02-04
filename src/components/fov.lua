@@ -18,7 +18,7 @@ function FOV.light_callback(fov, x, y)
 end
   
 function FOV.compute_callback(x, y, r, v)
-    game.entities[_id + 1].fov.map[x..";"..y] = v
+    game.entities[_id].fov.map[x..";"..y] = v
 end
 
 function FOV:update()

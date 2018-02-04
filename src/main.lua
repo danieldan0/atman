@@ -51,8 +51,8 @@ if love.filesystem.exists("scores.dat") then
     game.scores = bitser.loadLoveFile('scores.dat')
 end
 
-PLAYER_ID = 0
-BOSS_ID = 1
+PLAYER_ID = 1
+BOSS_ID = 2
 
 local function monster_template()
     return {{
@@ -86,9 +86,9 @@ local function heal_template()
         Sender(),
         Item(0, function(self_id, other_id)
             if other_id == PLAYER_ID then
-                game.entities[self_id + 1].sender.send(game.entities[self_id + 1], other_id, "You are healed!", {0, 255, 0, 255})
-                game.entities[self_id + 1]:die()
-                game.entities[other_id + 1].destroyable.heal(game.entities[other_id + 1], 10)
+                game.entities[self_id].sender.send(game.entities[self_id], other_id, "You are healed!", {0, 255, 0, 255})
+                game.entities[self_id]:die()
+                game.entities[other_id].destroyable.heal(game.entities[other_id], 10)
             end
         end)
     }, "heal"}
@@ -102,8 +102,8 @@ local function trap_template()
         Attacker(10),
         Sender(),
         Item(0, function(self_id, other_id)
-            game.entities[self_id + 1].attacker.attack(game.entities[self_id + 1], other_id)
-            game.entities[self_id + 1]:die()
+            game.entities[self_id].attacker.attack(game.entities[self_id], other_id)
+            game.entities[self_id]:die()
         end)
     }, "trap"}
 end
@@ -116,9 +116,9 @@ local function poison_template()
         Attacker(10),
         Sender(),
         Item(0, function(self_id, other_id)
-            game.entities[self_id + 1].sender.send(game.entities[self_id + 1], other_id, "You are poisoned!", {75, 100, 0, 255})
-            game.entities[other_id + 1].buffs.poison(game.entities[other_id + 1], 2, 6)
-            game.entities[self_id + 1]:die()
+            game.entities[self_id].sender.send(game.entities[self_id], other_id, "You are poisoned!", {75, 100, 0, 255})
+            game.entities[other_id].buffs.poison(game.entities[other_id], 2, 6)
+            game.entities[self_id]:die()
         end)
     }, "trap"}
 end
@@ -132,9 +132,9 @@ local function bonus_template()
         Effects(),
         Item(0, function(self_id, other_id)
             if other_id == PLAYER_ID then
-                game.entities[self_id + 1].sender.send(game.entities[self_id + 1], other_id, "You feel more powerful!", {0, 255, 255, 255})
-                game.entities[self_id + 1]:die()
-                game.entities[other_id + 1].attacker.dmg = game.entities[other_id + 1].attacker.dmg + 5
+                game.entities[self_id].sender.send(game.entities[self_id], other_id, "You feel more powerful!", {0, 255, 255, 255})
+                game.entities[self_id]:die()
+                game.entities[other_id].attacker.dmg = game.entities[other_id].attacker.dmg + 5
             end
         end)
     }, "bonus"}
@@ -160,10 +160,10 @@ function place_entities()
         Buffs()
     }, "player")
     
-    game.entities[player.id + 1] = player
+    game.entities[player.id] = player
     
-    game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
-    --game.entities[PLAYER_ID + 1].effects.rainbow(game.entities[PLAYER_ID + 1])
+    game.entities[PLAYER_ID].fov.update(game.entities[PLAYER_ID])
+    --game.entities[PLAYER_ID].effects.rainbow(game.entities[PLAYER_ID])
     
     local pos = utils.get_free_tile(10000)
     repeat
@@ -183,41 +183,41 @@ function place_entities()
         Buffs()
     }, "dragon")
     BOSS_ID = boss.id
-    game.entities[BOSS_ID + 1] = boss
-    game.entities[BOSS_ID + 1].effects.rainbow(game.entities[BOSS_ID + 1])
+    game.entities[BOSS_ID] = boss
+    game.entities[BOSS_ID].effects.rainbow(game.entities[BOSS_ID])
 
     for i = 1, 40 do
         local monster = Entity(unpack(monster_template()))
-        game.entities[monster.id + 1] = monster
+        game.entities[monster.id] = monster
     end
 
     for i = 1, 100 do
         local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
-        game.entities[gold.id + 1] = gold
+        game.entities[gold.id] = gold
     end
 
     for i = 1, 25 do
         local heal = Entity(unpack(heal_template()))
-        game.entities[heal.id + 1] = heal
+        game.entities[heal.id] = heal
     end
 
     for i = 1, 25 do
         local trap = Entity(unpack(trap_template()))
-        game.entities[trap.id + 1] = trap
+        game.entities[trap.id] = trap
     end
 
     for i = 1, 25 do
         local trap = Entity(unpack(poison_template()))
-        game.entities[trap.id + 1] = trap
+        game.entities[trap.id] = trap
     end
 
     for i = 1, 5 do
         local bonus = Entity(unpack(bonus_template()))
         bonus.effects.rainbow(bonus)
-        game.entities[bonus.id + 1] = bonus
+        game.entities[bonus.id] = bonus
     end
 
-    game.entities[PLAYER_ID + 1].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
+    game.entities[PLAYER_ID].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
 end
 
 place_entities()
@@ -274,18 +274,18 @@ function love.update(dt)
     if game.user_input.pressed_key then
         for id, entity in ipairs(game.entities) do
             if entity and entity.alive and entity.actor then
-                if not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive then
+                if not game.entities[PLAYER_ID].alive or not game.entities[BOSS_ID].alive then
                     break
                 end
                 entity.actor.act(entity)
             end
         end
-        game.entities[PLAYER_ID + 1].fov.update(game.entities[PLAYER_ID + 1])
+        game.entities[PLAYER_ID].fov.update(game.entities[PLAYER_ID])
         game.user_input.pressed_key = false
     end
-    if (not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive) and not saved then
-        local bonus = (game.entities[BOSS_ID + 1].alive and 0 or 1000) - math.floor(time / 3)
-        table.insert(game.scores, math.max(0, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus))
+    if (not game.entities[PLAYER_ID].alive or not game.entities[BOSS_ID].alive) and not saved then
+        local bonus = (game.entities[BOSS_ID].alive and 0 or 1000) - math.floor(time / 3)
+        table.insert(game.scores, math.max(0, game.entities[PLAYER_ID].inventory.inv["gold"].item.amount + bonus))
         table.sort(game.scores, function(a,b) return a>b end)
         bitser.dumpLoveFile('scores.dat', game.scores)
         saved = true
@@ -318,7 +318,7 @@ function love.draw()
 
     -- Drawing all other stuff.
     s_screen(function()
-        render.render_all(game.entities[PLAYER_ID + 1].position.x, game.entities[PLAYER_ID + 1].position.y, 26, 16,
+        render.render_all(game.entities[PLAYER_ID].position.x, game.entities[PLAYER_ID].position.y, 26, 16,
                             game.map, game.entities)
         local min = tostring(math.floor(time / 60))
         local sec = tostring(math.floor(time) - (math.floor(time / 60) * 60))
@@ -329,14 +329,14 @@ function love.draw()
             sec = "0"..sec
         end
         render.draw_str(min..":"..sec, 0, 0, {255, 0, 255, 255}, {0, 0, 0, 255})
-        if not game.entities[PLAYER_ID + 1].alive or not game.entities[BOSS_ID + 1].alive then
-            if game.entities[BOSS_ID + 1].alive then
+        if not game.entities[PLAYER_ID].alive or not game.entities[BOSS_ID].alive then
+            if game.entities[BOSS_ID].alive then
                 render.draw_str("GAME OVER", 8, 0, {255, 0, 0, 255}, {0, 0, 0, 255})
             else
                 render.draw_str("You won!", 8, 0, {0, 255, 0, 255}, {0, 0, 0, 255})
             end
-            local bonus = (game.entities[BOSS_ID + 1].alive and 0 or 1000) - math.floor(time / 3)
-            local score = math.max(0, game.entities[PLAYER_ID + 1].inventory.inv["gold"].item.amount + bonus)
+            local bonus = (game.entities[BOSS_ID].alive and 0 or 1000) - math.floor(time / 3)
+            local score = math.max(0, game.entities[PLAYER_ID].inventory.inv["gold"].item.amount + bonus)
             render.draw_str("Your score: "..score, 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
             render.draw_str("Top scores:", 8, 2, {255, 255, 0, 255}, {0, 0, 0, 255})
             for i = 1, 5 do

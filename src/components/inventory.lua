@@ -9,17 +9,17 @@ function Inventory:__init(size)
 end
 
 function Inventory:add(id)
-    local item = game.entities[id + 1]
+    local item = game.entities[id]
     if item and item.alive and item.item then
         if self.inventory.inv[item.name] then
-            game.entities[id + 1].item.on_pickup(id, self.id)
+            game.entities[id].item.on_pickup(id, self.id)
             self.inventory.inv[item.name].item.amount = self.inventory.inv[item.name].item.amount + item.item.amount
         elseif self.inventory.occupied < self.inventory.size then
-            game.entities[id + 1].item.on_pickup(id, self.id)
+            game.entities[id].item.on_pickup(id, self.id)
             self.inventory.inv[item.name] = item
             self.inventory.occupied = self.inventory.occupied + 1
         elseif item.item.amount == 0 then
-            game.entities[id + 1].item.on_pickup(id, self.id)
+            game.entities[id].item.on_pickup(id, self.id)
         end
     end
 end

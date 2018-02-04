@@ -38,7 +38,7 @@ function render.draw_log(log, x, y)
 end
 
 function render.draw_tile(x, y, v, camera_x, camera_y)
-    if v and game.entities[PLAYER_ID + 1].fov.map[x .. ";" .. y] then
+    if v and game.entities[PLAYER_ID].fov.map[x .. ";" .. y] then
         render.draw_char(v.char, x - camera_x, y - camera_y, v.color, {0, 0, 0, 0})
     end
     return v
@@ -46,7 +46,7 @@ end
 
 function render.draw_entity(entity, camera_x, camera_y, w, h)
     if entity and entity.alive and entity.drawable and entity.position
-    and game.entities[PLAYER_ID + 1].fov.map[entity.position.x .. ";" .. entity.position.y] and
+    and game.entities[PLAYER_ID].fov.map[entity.position.x .. ";" .. entity.position.y] and
     utils.in_area(entity.position.x, entity.position.y, camera_x, camera_y, w - 1, h - 1) then
         if entity.effects then
             render.draw_char(entity.drawable.char, entity.position.x - camera_x,
@@ -73,8 +73,8 @@ function render.render_all(x, y, w, h, map, entities)
     for _, entity in ipairs(actors) do
         render.draw_entity(entity, x, y, w, h)
     end
-    local player = entities[PLAYER_ID + 1]
-    local boss = entities[BOSS_ID + 1]
+    local player = entities[PLAYER_ID]
+    local boss = entities[BOSS_ID]
     render.draw_str(player.destroyable.hp.."/"..player.destroyable.max_hp.." HP",
                     0, 19, {0, 255, 0, 255}, {0, 0, 0, 255})
     render.draw_str(player.inventory.inv["gold"].item.amount .." $",

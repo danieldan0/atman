@@ -12,7 +12,7 @@ function BossActor:__init()
 end
 
 local function passable_callback(x, y)
-    local can_move = game.entities[id+1].movable.can_move(game.entities[id+1],
+    local can_move = game.entities[id].movable.can_move(game.entities[id],
     Position(x, y), game.map, game.entities)
     return can_move
 end
@@ -23,7 +23,7 @@ end
 
 function BossActor:act()
     self.buffs.update(self)
-    local dest = game.entities[PLAYER_ID + 1].position
+    local dest = game.entities[PLAYER_ID].position
     if self.position:dist(dest) > 10 then
         id = self.id
         local astar = ROT.Path.AStar(dest.x, dest.y, passable_callback, {topology = 4})

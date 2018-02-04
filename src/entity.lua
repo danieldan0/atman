@@ -1,7 +1,7 @@
 Entity = require("class")()
 
 local free_ids = {}
-local next_id = 0
+local next_id = 1
 
 function Entity:__init(components, name)
     self.alive = true
@@ -57,7 +57,7 @@ end
 
 function clean_all()
     free_ids = {}
-    next_id = 0
+    next_id = 1
 end
 
 return Entity
