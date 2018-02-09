@@ -140,27 +140,64 @@ local function bonus_template()
     }, "bonus"}
 end
 
-function place_entities()
+local function downstairs_template()
+    x, y = unpack(utils.get_free_tile(10000))
+    return {{
+        Position(x, y, false),
+        Drawable(">", {211, 211, 211, 255}, {0, 0, 0, 255}),
+        Sender(),
+        Effects(),
+        Item(0, function(self_id, other_id)
+            if other_id == PLAYER_ID then
+                local player = game.entities[PLAYER_ID]
+                game.map = Mapgen.generate(100, 100)
+                place_entities(player)
+            end
+        end)
+    }, "downstairs"}
+end
+
+function place_entities(player)
     clean_all()
 
-    player = Entity ({
-        Position(unpack(game.map:find_rand(Tile.floor, 10000))),
-        Movable(),
-        Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
-        Input(),
-        Attacker(5),
-        Destroyable(20),
-        FOV(5),
-        Effects(),
-        PlayerActor(),
-        Sender(),
-        Listener(),
-        Log(4),
-        Inventory(1),
-        Buffs()
-    }, "player")
+    if player == nil then
+        player = Entity ({
+            Position(unpack(game.map:find_rand(Tile.floor, 10000))),
+            Movable(),
+            Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
+            Input(),
+            Attacker(5),
+            Destroyable(20),
+            FOV(5),
+            Effects(),
+            PlayerActor(),
+            Sender(),
+            Listener(),
+            Log(4),
+            Inventory(1),
+            Buffs()
+        }, "player")
+    else
+        player = Entity ({
+            Position(unpack(game.map:find_rand(Tile.floor, 10000))),
+            Movable(),
+            Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
+            Input(),
+            player.attacker,
+            player.destroyable,
+            FOV(5),
+            player.effects,
+            PlayerActor(),
+            Sender(),
+            Listener(),
+            player.log,
+            player.inventory,
+            player.buffs
+        }, "player")
+    end
     
     game.entities[player.id] = player
+    print(player.id)
     
     game.entities[PLAYER_ID].fov.update(game.entities[PLAYER_ID])
     --game.entities[PLAYER_ID].effects.rainbow(game.entities[PLAYER_ID])
@@ -216,6 +253,9 @@ function place_entities()
         bonus.effects.rainbow(bonus)
         game.entities[bonus.id] = bonus
     end
+
+    local downstairs = Entity(unpack(downstairs_template()))
+    game.entities[downstairs.id] = downstairs
 
     game.entities[PLAYER_ID].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
 end
