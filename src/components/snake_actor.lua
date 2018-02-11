@@ -1,12 +1,13 @@
 local ROT = require "lib/rotLove/rot"
-local Entity = require 'entity'
+local Entity = require "entity"
+local Position = require "components/position"
 SnakeActor = require("class")()
 SnakeActor.name = "actor"
 local dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 
 function SnakeActor:__init(life, head, factory)
     self.name = SnakeActor.name
-    self.life = life ~= nil and life or 3
+    self.life = life ~= nil and life or 10
     self.factory = factory and factory or function()
         return {{
             Position(unpack(utils.get_free_tile(10000))),
@@ -37,7 +38,11 @@ function SnakeActor:move(old_position)
     if old_position == nil then
         local dx, dy = unpack(dirs[ROT.RNG:random(1, 4)])
         local old_position = self.position
-        self.movable.move(self, dx, dy, game.map, game.entities)
+        if self.actor.next and (not self.position:add(Position(dx, dy)):eq(game.entities[self.actor.next].position)) then
+            self.movable.move(self, dx, dy, game.map, game.entities)
+        elseif not self.actor.next then
+            self.movable.move(self, dx, dy, game.map, game.entities)
+        end
         if not (self.position:eq(old_position)) then
             if self.actor.life > 0 and self.actor.next == nil then
                 local snake = Entity(unpack(self.actor.factory()))
