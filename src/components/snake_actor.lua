@@ -47,7 +47,7 @@ function SnakeActor:move(old_position)
                 self.actor.next = snake.id
                 game.entities[snake.id] = snake
             elseif self.actor.next then
-                game.entities[self.actor.next].actor.move(self, old_position)
+                game.entities[self.actor.next].actor.move(game.entities[self.actor.next], old_position)
             end
         end
     else
@@ -62,7 +62,7 @@ function SnakeActor:move(old_position)
                 self.actor.next = snake.id
                 game.entities[snake.id] = snake
             elseif self.actor.next then
-                game.entities[self.actor.next].actor.move(self, pos)
+                game.entities[self.actor.next].actor.move(game.entities[self.actor.next], pos)
             end
         end
     end
