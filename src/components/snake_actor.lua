@@ -39,7 +39,7 @@ function SnakeActor:move(old_position)
         local old_position = self.position
         self.movable.move(self, dx, dy, game.map, game.entities)
         if not (self.position:eq(old_position)) then
-            if self.actor.life ~= 0 and self.actor.next == nil then
+            if self.actor.life > 0 and self.actor.next == nil then
                 local snake = Entity(unpack(self.actor.factory()))
                 snake.actor.life = self.actor.life - 1
                 snake.actor.head = false
@@ -54,7 +54,7 @@ function SnakeActor:move(old_position)
         local pos = self.position
         self.position = old_position
         if not (self.position:eq(old_position)) then
-            if self.actor.life ~= 0 and self.actor.next == nil then
+            if self.actor.life > 0 and self.actor.next == nil then
                 local snake = Entity(unpack(self.actor.factory()))
                 snake.actor.life = self.actor.life - 1
                 snake.actor.head = false
