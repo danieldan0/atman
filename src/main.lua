@@ -24,6 +24,7 @@ local Inventory = require 'components/inventory'
 local Item = require 'components/item'
 local BossActor = require 'components/boss_actor'
 local Buffs = require 'components/buffs'
+local SnakeActor = require 'components/snake_actor'
 
 -- Game state.
 -- Global, because I can't make pointers or something in Lua.
@@ -157,6 +158,21 @@ local function downstairs_template()
     }, "downstairs"}
 end
 
+local function snake_template()
+    return {{
+        Position(unpack(utils.get_free_tile(10000))),
+        Movable(),
+        Drawable("s", {0, 50, 0, 255}, {0, 0, 0, 255}),
+        Attacker(5),
+        Destroyable(10),
+        Effects(),
+        Sender(),
+        Inventory(0),
+        SnakeActor(),
+        Buffs()
+    }, "snake"}
+end
+
 function place_entities(player)
     clean_all()
 
@@ -226,6 +242,11 @@ function place_entities(player)
     for i = 1, 40 do
         local monster = Entity(unpack(monster_template()))
         game.entities[monster.id] = monster
+    end
+
+    for i = 1, 40 do
+        local snake = Entity(unpack(snake_template()))
+        game.entities[snake.id] = snake
     end
 
     for i = 1, 100 do
