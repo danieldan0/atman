@@ -213,7 +213,6 @@ function place_entities(player)
     end
     
     game.entities[player.id] = player
-    print(player.id)
     
     game.entities[PLAYER_ID].fov.update(game.entities[PLAYER_ID])
     --game.entities[PLAYER_ID].effects.rainbow(game.entities[PLAYER_ID])

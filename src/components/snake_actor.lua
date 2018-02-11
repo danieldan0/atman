@@ -7,7 +7,7 @@ local dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 
 function SnakeActor:__init(life, head, factory)
     self.name = SnakeActor.name
-    self.life = life ~= nil and life or 10
+    self.life = life ~= nil and life or 3
     self.factory = factory and factory or function()
         return {{
             Position(unpack(utils.get_free_tile(10000))),
