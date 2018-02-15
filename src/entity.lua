@@ -36,6 +36,19 @@ function Entity:__init(components, name)
         table.insert(free_ids, self.id)
     end
 
+    self.clone = function(self)
+        local new = self
+        local id = #free_ids
+        if id ~= 0 then
+            new.id = free_ids[id]
+            table.remove(free_ids, id)
+        else
+            new.id = next_id
+            next_id = next_id + 1
+        end
+        return new
+    end
+
     -- Making metamethods for components
     local index = self.__index
     setmetatable(self, {__index = 
@@ -43,7 +56,8 @@ function Entity:__init(components, name)
             local component = table.components[key]
             if component ~= nil then
                 return component
-            elseif key == "id" or key == "die" or key == "alive" or key == "components" or key == "name" then
+            elseif key == "id" or key == "die" or key == "alive" or key == "components"
+                    or key == "name" or key == "clone" then
                 return table[key]
             else
                 return nil

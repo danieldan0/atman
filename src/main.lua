@@ -277,7 +277,9 @@ function place_entities(player)
     local downstairs = Entity(unpack(downstairs_template()))
     game.entities[downstairs.id] = downstairs
 
-    game.entities[PLAYER_ID].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
+    if not game.entities[PLAYER_ID].inventory.inv["gold"] then
+        game.entities[PLAYER_ID].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
+    end
 end
 
 place_entities()

@@ -27,7 +27,7 @@ function Movable:move(dx, dy, map, entities)
     local new_pos = Position(self.position.x + dx, self.position.y + dy)
     if self.movable.can_move(self, new_pos, map, entities) == true then
         self.position = new_pos
-        return true
+        return "moved"
     elseif type(self.movable.can_move(self, new_pos, map, entities)) == "number" then
         local id = self.movable.can_move(self, new_pos, map, entities)
         if game.entities[id].destroyable and self.attacker then
@@ -39,7 +39,7 @@ function Movable:move(dx, dy, map, entities)
         if not game.entities[id].position.blocks then
             self.position = new_pos
         end
-        return true
+        return "interacted"
     end
     return false
 end
