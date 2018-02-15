@@ -1,6 +1,15 @@
 local ROT = require "lib/rotLove/rot"
 local Entity = require "entity"
 local Position = require "components/position"
+local Movable = require 'components/movable'
+local Drawable = require 'components/drawable'
+local Attacker = require 'components/attacker'
+local Destroyable = require 'components/destroyable'
+local Effects = require 'components/effects'
+local Sender = require 'components/sender'
+local Inventory = require 'components/inventory'
+local Buffs = require 'components/buffs'
+local utils = require 'utils'
 SnakeActor = require("class")()
 SnakeActor.name = "actor"
 local dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
