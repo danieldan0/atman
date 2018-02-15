@@ -34,6 +34,7 @@ function SnakeActor:act()
     end
 end
 
+-- FIXME
 function SnakeActor:move(old_position)
     if old_position == nil then
         local dx, dy = unpack(dirs[ROT.RNG:random(1, 4)])
