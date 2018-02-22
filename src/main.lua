@@ -1,417 +1,160 @@
-local moonshine = require 'lib/moonshine'
-local ROT = require "lib/rotLove/rot"
-local bitser = require 'lib/bitser'
-local utils = require 'utils'
-local render = require 'render'
-local Map = require 'map'
-local Mapgen = require 'mapgen'
-local Tile = require 'tile'
-local Entity = require 'entity'
-local Position = require 'components/position'
-local Movable = require 'components/movable'
-local Drawable = require 'components/drawable'
-local Input = require 'components/input'
-local PlayerActor = require 'components/player_actor'
-local MonsterActor = require 'components/monster_actor'
-local Attacker = require 'components/attacker'
-local Destroyable = require 'components/destroyable'
-local FOV = require 'components/fov'
-local Effects = require 'components/effects'
-local Listener = require 'components/listener'
-local Sender = require 'components/sender'
-local Log = require 'components/log'
-local Inventory = require 'components/inventory'
-local Item = require 'components/item'
-local BossActor = require 'components/boss_actor'
-local Buffs = require 'components/buffs'
-local SnakeActor = require 'components/snake_actor'
+SceneManager = require 'scene_manager'
+TestScene = require 'test_scene'
 
--- Game state.
--- Global, because I can't make pointers or something in Lua.
--- Or I could do it in the other way?
-game = {
-    map = Mapgen.generate(100, 100),
-    entities = {},
-    scores = {},
-    user_input = {
-        -- Corrected mouse coords
-        mouseXY = {0, 0},
-        -- Position of a tile under cursor
-        tileXY = {0, 0},
-        -- Pressed keys
-        keys = {},
-        -- Was key pressed?
-        pressed_key = false
-    }
-}
+SceneManager = SceneManager()
+SceneManager:load(TestScene())
 
-local saved = false
-local time = 0
-
-if love.filesystem.exists("scores.dat") then
-    game.scores = bitser.loadLoveFile('scores.dat')
-end
-
-PLAYER_ID = 1
-BOSS_ID = 2
-
-local function monster_template()
-    return {{
-        Position(unpack(utils.get_free_tile(10000))),
-        Movable(),
-        Drawable("?", {255, 0, 0, 255}, {0, 0, 0, 255}),
-        Attacker(5),
-        Destroyable(10),
-        Effects(),
-        Sender(),
-        Inventory(0),
-        MonsterActor(),
-        Buffs()
-    }, "?"}
-end
-
-local function gold_template(amount)
-    x, y = unpack(utils.get_free_tile(10000))
-    return {{
-        Position(x, y, false),
-        Drawable("$", {255, 255, 0, 255}, {0, 0, 0, 255}),
-        Item(amount)
-    }, "gold"}
-end
-
-local function heal_template()
-    x, y = unpack(utils.get_free_tile(10000))
-    return {{
-        Position(x, y, false),
-        Drawable("+", {127, 255, 127, 255}, {0, 0, 0, 255}),
-        Sender(),
-        Item(0, function(self_id, other_id)
-            if other_id == PLAYER_ID then
-                game.entities[self_id].sender.send(game.entities[self_id], other_id, "You are healed!", {0, 255, 0, 255})
-                game.entities[self_id]:die()
-                game.entities[other_id].destroyable.heal(game.entities[other_id], 10)
+function love.run() 
+	if love.math then
+		love.math.setRandomSeed(os.time())
+	end
+ 
+	if love.load then love.load(arg) end
+ 
+	-- We don't want the first frame's dt to include time taken by love.load.
+	if love.timer then love.timer.step() end
+ 
+	local dt = 0
+ 
+	-- Main loop time.
+	while true do
+		-- Process events.
+		if love.event then
+			love.event.pump()
+            for name, a,b,c,d,e,f in love.event.poll() do
+				if name == "quit" then
+                    if not love.quit or not love.quit() or 
+                    not SceneManager.current_scene or not SceneManager.current_scene:quit() then
+						return a
+					end
+				end
+                love.handlers[name](a,b,c,d,e,f)
+                if SceneManager.current_scene then
+                    SceneManager.current_scene[name](SceneManager.current_scene,a,b,c,d,e,f)
+                end
+			end
+		end
+ 
+		-- Update dt, as we'll be passing it to update
+		if love.timer then
+			love.timer.step()
+			dt = love.timer.getDelta()
+		end
+ 
+		-- Call update and draw
+        if love.update then
+            love.update(dt) -- will pass 0 if love.timer is disabled
+            if SceneManager.current_scene then
+                SceneManager.current_scene:update(dt)
             end
-        end)
-    }, "heal"}
-end
-
-local function trap_template()
-    x, y = unpack(utils.get_free_tile(10000))
-    return {{
-        Position(x, y, false),
-        Drawable("^", {255, 127, 0, 255}, {0, 0, 0, 255}),
-        Attacker(10),
-        Sender(),
-        Item(0, function(self_id, other_id)
-            game.entities[self_id].attacker.attack(game.entities[self_id], other_id)
-            game.entities[self_id]:die()
-        end)
-    }, "trap"}
-end
-
-local function poison_template()
-    x, y = unpack(utils.get_free_tile(10000))
-    return {{
-        Position(x, y, false),
-        Drawable("^", {75, 100, 0, 255}, {0, 0, 0, 255}),
-        Attacker(10),
-        Sender(),
-        Item(0, function(self_id, other_id)
-            game.entities[self_id].sender.send(game.entities[self_id], other_id, "You are poisoned!", {75, 100, 0, 255})
-            game.entities[other_id].buffs.poison(game.entities[other_id], 2, 6)
-            game.entities[self_id]:die()
-        end)
-    }, "trap"}
-end
-
-local function bonus_template()
-    x, y = unpack(utils.get_free_tile(10000))
-    return {{
-        Position(x, y, false),
-        Drawable("O", {127, 255, 127, 255}, {0, 0, 0, 255}),
-        Sender(),
-        Effects(),
-        Item(0, function(self_id, other_id)
-            if other_id == PLAYER_ID then
-                game.entities[self_id].sender.send(game.entities[self_id], other_id, "You feel more powerful!", {0, 255, 255, 255})
-                game.entities[self_id]:die()
-                game.entities[other_id].attacker.dmg = game.entities[other_id].attacker.dmg + 5
+        end
+ 
+		if love.graphics and love.graphics.isActive() then
+			love.graphics.clear(love.graphics.getBackgroundColor())
+			love.graphics.origin()
+            if love.draw then
+                love.draw()
+                if SceneManager.current_scene then
+                    SceneManager.current_scene:draw()
+                end
             end
-        end)
-    }, "bonus"}
+			love.graphics.present()
+		end
+ 
+		if love.timer then love.timer.sleep(0.001) end
+	end 
 end
 
-local function downstairs_template()
-    x, y = unpack(utils.get_free_tile(10000))
-    return {{
-        Position(x, y, false),
-        Drawable(">", {211, 211, 211, 255}, {0, 0, 0, 255}),
-        Sender(),
-        Effects(),
-        Item(0, function(self_id, other_id)
-            if other_id == PLAYER_ID then
-                local player = game.entities[PLAYER_ID]
-                game.map = Mapgen.generate(100, 100)
-                place_entities(player)
-            end
-        end)
-    }, "downstairs"}
-end
-
-local function snake_template()
-    return {{
-        Position(unpack(utils.get_free_tile(10000))),
-        Movable(),
-        Drawable("s", {0, 50, 0, 255}, {0, 0, 0, 255}),
-        Attacker(5),
-        Destroyable(10),
-        Effects(),
-        Sender(),
-        Inventory(0),
-        SnakeActor(),
-        Buffs()
-    }, "snake"}
-end
-
-function place_entities(player)
-    clean_all()
-
-    if player == nil then
-        player = Entity ({
-            Position(unpack(game.map:find_rand(Tile.floor, 10000))),
-            Movable(),
-            Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
-            Input(),
-            Attacker(5),
-            Destroyable(20),
-            FOV(5),
-            Effects(),
-            PlayerActor(),
-            Sender(),
-            Listener(),
-            Log(4),
-            Inventory(1),
-            Buffs()
-        }, "player")
-    else
-        player = Entity ({
-            Position(unpack(game.map:find_rand(Tile.floor, 10000))),
-            Movable(),
-            Drawable("@", {255, 255, 255, 255}, {0, 0, 0, 255}),
-            Input(),
-            player.attacker,
-            player.destroyable,
-            FOV(5),
-            player.effects,
-            PlayerActor(),
-            Sender(),
-            Listener(),
-            player.log,
-            player.inventory,
-            player.buffs
-        }, "player")
-    end
-    
-    game.entities[player.id] = player
-    
-    game.entities[PLAYER_ID].fov.update(game.entities[PLAYER_ID])
-    --game.entities[PLAYER_ID].effects.rainbow(game.entities[PLAYER_ID])
-    
-    local pos = utils.get_free_tile(10000)
-    repeat
-        pos = utils.get_free_tile(10000)
-    until pos ~= nil
-    
-    local boss = Entity({
-        Position(unpack(pos)),
-        Movable(),
-        Drawable("D", {255, 255, 255, 255}, {0, 0, 0, 255}),
-        Attacker(10),
-        Destroyable(100),
-        Effects(),
-        Sender(),
-        Inventory(0),
-        BossActor(),
-        Buffs()
-    }, "dragon")
-    BOSS_ID = boss.id
-    game.entities[BOSS_ID] = boss
-    game.entities[BOSS_ID].effects.rainbow(game.entities[BOSS_ID])
-
-    for i = 1, 40 do
-        local monster = Entity(unpack(monster_template()))
-        game.entities[monster.id] = monster
-    end
-
-    for i = 1, 40 do
-        local snake = Entity(unpack(snake_template()))
-        game.entities[snake.id] = snake
-    end
-
-    for i = 1, 100 do
-        local gold = Entity(unpack(gold_template(ROT.RNG:random(1, 5))))
-        game.entities[gold.id] = gold
-    end
-
-    for i = 1, 25 do
-        local heal = Entity(unpack(heal_template()))
-        game.entities[heal.id] = heal
-    end
-
-    for i = 1, 25 do
-        local trap = Entity(unpack(trap_template()))
-        game.entities[trap.id] = trap
-    end
-
-    for i = 1, 25 do
-        local trap = Entity(unpack(poison_template()))
-        game.entities[trap.id] = trap
-    end
-
-    for i = 1, 5 do
-        local bonus = Entity(unpack(bonus_template()))
-        bonus.effects.rainbow(bonus)
-        game.entities[bonus.id] = bonus
-    end
-
-    local downstairs = Entity(unpack(downstairs_template()))
-    game.entities[downstairs.id] = downstairs
-
-    if not game.entities[PLAYER_ID].inventory.inv["gold"] then
-        game.entities[PLAYER_ID].inventory.inv["gold"] = Entity(unpack(gold_template(0)))
-    end
-end
-
-place_entities()
-
--- Loading assets
 function love.load()
-    -- Loading shaders
-    -- Just scanlines and crt, used for the screen "texture".
-    s_scanlines = moonshine(moonshine.effects.scanlines)
-    .chain(moonshine.effects.crt)
-    s_scanlines.scanlines.thickness = 0.5
-    s_scanlines.crt.scaleFactor = {1.15, 1.15}
-
-    -- Glowing screen, used for actual drawing.
-    -- Use this for rendering characters and stuff.
-    s_screen = moonshine(moonshine.effects.scanlines)
-    .chain(moonshine.effects.glow)
-    .chain(moonshine.effects.crt)
-    s_screen.scanlines.thickness = 0.5
-    s_screen.crt.scaleFactor = {1.15, 1.15}
-
-    -- Loading font.
-    font = love.graphics.newFont("assets/fonts/Press_Start_2P/PressStart2P-Regular.ttf", 24)
-    love.graphics.setFont(font)
-
-    -- Loading screen frame image.
-    frame = love.graphics.newImage("assets/images/screen-frame0.png")
-
-    -- Hiding cursor.
-    love.mouse.setVisible(false)
-
-    -- Loading music loop.
-    music = love.audio.newSource("assets/music/1.ogg")
-    music:setLooping(true)
-    music:play()
-
-    -- Loading sounds for damage.
-    dmg_sounds = {love.audio.newSource("assets/music/dmg0.ogg"), love.audio.newSource("assets/music/dmg1.ogg"),
-    love.audio.newSource("assets/music/dmg2.ogg"), love.audio.newSource("assets/music/dmg3.ogg"),
-    love.audio.newSource("assets/music/dmg4.ogg")}
 end
 
--- Correcting mouse position.
+function love.unload()
+end
+
+function love.directorydropped(path)
+end
+
+function love.draw()
+end
+
+function love.errhand(msg)
+end
+
+function love.errorhandler(msg)
+end
+
+function love.filedropped(file)
+end
+
+function love.focus(focus)
+end
+
+function love.gamepadaxis(joystick, axis, value)
+end
+
+function love.gamepadpressed(joystick, button)
+end
+
+function love.gamepadreleased(joystick, button)
+end
+
+function love.joystickadded(joystick)
+end
+
+function love.joystickaxis(joystick, axis, value)
+end
+
+function love.joystickhat(joystick, hat, direction)
+end
+
+function love.joystickpressed(joystick, button)
+end
+
+function love.joystickreleased(joystick, button)
+end
+
+function love.joystickremoved(joystick)
+end
+
+function love.keypressed(key, scancode, isrepeat)
+end
+
+function love.keyreleased(key, scancode)
+end
+
+function love.mousefocus(focus)
+end
+
 function love.mousemoved(x, y, dx, dy, istouch)
-    -- Correcting mouse coordinates.
-    game.user_input.mouseXY = utils.fisheye({x, y}, 640, 496, 1.15, 1.06, 1.065)
-    game.user_input.tileXY = {math.floor((game.user_input.mouseXY[1] - 12) / 24), math.floor(game.user_input.mouseXY[2] / 24)}
+end
+
+function love.mousepressed(x, y, button, istouch)
+end
+
+function love.mousereleased(x, y, button, istouch)
+end
+
+function love.quit()
+    return false
+end
+
+function love.resize(w, h)
+end
+
+function love.textedited(text, start, length)
+end
+
+function love.textinput(text)
+end
+
+function love.threaderror(thread, errorstr)
 end
 
 function love.update(dt)
-    if not saved then
-        time = time + dt
-    end
-    if game.user_input.pressed_key then
-        for id, entity in ipairs(game.entities) do
-            if entity and entity.alive and entity.actor then
-                if not game.entities[PLAYER_ID].alive or not game.entities[BOSS_ID].alive then
-                    break
-                end
-                entity.actor.act(entity)
-            end
-        end
-        game.entities[PLAYER_ID].fov.update(game.entities[PLAYER_ID])
-        game.user_input.pressed_key = false
-    end
-    if (not game.entities[PLAYER_ID].alive or not game.entities[BOSS_ID].alive) and not saved then
-        local bonus = (game.entities[BOSS_ID].alive and 0 or 1000) - math.floor(time / 3)
-        table.insert(game.scores, math.max(0, game.entities[PLAYER_ID].inventory.inv["gold"].item.amount + bonus))
-        table.sort(game.scores, function(a,b) return a>b end)
-        bitser.dumpLoveFile('scores.dat', game.scores)
-        saved = true
-    end
 end
 
-function love.keypressed(key)
-    if key == "`" then
-        debug.debug()
-    end
-    if key == "0" then
-        game.map = Mapgen.generate(100, 100)
-        place_entities()
-    end
-    game.user_input.keys[key] = true
-    game.user_input.pressed_key = true
-end
-  
-function love.keyreleased(key)
-    game.user_input.keys[key] = nil
+function love.visible(visible)
 end
 
--- Rendering stuff
-function love.draw()
-    -- Drawing black scanlines background.
-    s_scanlines(function()
-        love.graphics.setColor({5, 5, 5, 255})
-        love.graphics.rectangle("fill", 0, 0, 640, 480)
-    end)
-
-    -- Drawing all other stuff.
-    s_screen(function()
-        render.render_all(game.entities[PLAYER_ID].position.x, game.entities[PLAYER_ID].position.y, 26, 16,
-                            game.map, game.entities)
-        local min = tostring(math.floor(time / 60))
-        local sec = tostring(math.floor(time) - (math.floor(time / 60) * 60))
-        if #min < 2 then
-            min = "0"..min
-        end
-        if #sec < 2 then
-            sec = "0"..sec
-        end
-        render.draw_str(min..":"..sec, 0, 0, {255, 0, 255, 255}, {0, 0, 0, 255})
-        if not game.entities[PLAYER_ID].alive or not game.entities[BOSS_ID].alive then
-            if game.entities[BOSS_ID].alive then
-                render.draw_str("GAME OVER", 8, 0, {255, 0, 0, 255}, {0, 0, 0, 255})
-            else
-                render.draw_str("You won!", 8, 0, {0, 255, 0, 255}, {0, 0, 0, 255})
-            end
-            local bonus = (game.entities[BOSS_ID].alive and 0 or 1000) - math.floor(time / 3)
-            local score = math.max(0, game.entities[PLAYER_ID].inventory.inv["gold"].item.amount + bonus)
-            render.draw_str("Your score: "..score, 8, 1, {255, 0, 255, 255}, {0, 0, 0, 255})
-            render.draw_str("Top scores:", 8, 2, {255, 255, 0, 255}, {0, 0, 0, 255})
-            for i = 1, 5 do
-                if game.scores[i] then
-                    render.draw_str(tostring(game.scores[i]), 8, 2 + i, {255, 255, 255, 255}, {0, 0, 0, 255})
-                end
-            end
-        end
-        -- Rendering a cursor.
-        love.graphics.setColor({255, 0, 0, 255})
-        love.graphics.rectangle("fill", game.user_input.mouseXY[1] - 5, game.user_input.mouseXY[2] - 5, 10, 10)
-    end)
-
-    -- Drawing a screen frame.
-    love.graphics.draw(frame, 0, 0)
+function love.wheelmoved(x, y)
 end
